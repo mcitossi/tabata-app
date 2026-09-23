@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Tabata</title>
+
+<!-- iOS: fullscreen e safe-area; lo zoom resta disponibile per accessibilità -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tabata">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<meta name="color-scheme" content="dark">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+
+<style>
+/* ============================== TOKENS ============================== */
+:root{
+  --bg:#000000;
+  --fg:#FFFFFF;
+  --muted:#8A8A8E;
+  --line:#1C1C1E;
+  --card:#0B0B0C;
+  --accent:#00F5A0;      /* verde acqua */
+  --phase:#00F5A0;
+  --safe-t:env(safe-area-inset-top, 0px);
+  --safe-b:env(safe-area-inset-bottom, 0px);
+  --safe-l:env(safe-area-inset-left, 0px);
+  --safe-r:env(safe-area-inset-right, 0px);
+}
+
+/* ============================== RESET / iOS ============================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;
+  background:var(--bg);
+  color:var(--fg);
+  overflow:hidden;                 /* niente scroll di pagina */
+  overscroll-behavior:none;        /* niente rubber-band */
+  -webkit-text-size-adjust:100%;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+  font-size:16px;                  /* base >=16px: Safari non zooma sui focus */
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;   /* nessun flash grigio al tocco */
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;user-select:none;
+  touch-action:manipulation;                 /* elimina il delay 300ms */
+  position:fixed;inset:0;                    /* app "inchiodata" come nativa */
+}
+button,input{
+  font-family:inherit;
+  font-size:16px;                  /* MAI sotto 16px: evita lo zoom su focus iOS */
+  color:inherit;background:none;border:none;
+  -webkit-appearance:none;appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+button{cursor:pointer}
+button:active{transform:scale(.97)}
+button,input{transition:transform .08s ease, background-color .15s ease, border-color .15s ease, opacity .15s ease}
+input{-webkit-user-select:text;user-select:text}
+[hidden]{display:none !important}
+
+/* ============================== SCREENS ============================== */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  padding:var(--safe-t) calc(20px + var(--safe-r)) var(--safe-b) calc(20px + var(--safe-l));
+  height:100vh;
+  height:-webkit-fill-available;
+  height:100dvh;
+}
+
+/* ============================== HEADER ============================== */
+.hdr{
+  flex:0 0 auto;
+  display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
+  height:52px;margin-top:6px;
+}
+.hdr h1{text-align:center;font-size:20px;font-weight:800;letter-spacing:.18em}
+.icon-btn{
+  width:44px;height:44px;                    /* target tocco Apple HIG */
+  display:grid;place-items:center;border-radius:14px;color:var(--fg);
+}
+.icon-btn:active{background:#131315}
+.icon-btn svg{width:24px;height:24px;display:block}
+#btn-fav.on{color:var(--accent)}
+#btn-fav.on svg{fill:currentColor}
+
+/* ============================== SETTINGS ============================== */
+.fields{
+  flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+}
+.fields-in{margin:auto 0;display:flex;flex-direction:column;gap:11px;padding:8px 0}
+.preset{
+  align-self:center;display:flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+  color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.03em;
+}
+.preset b{color:var(--fg);font-weight:700}
+
+.field{display:flex;flex-direction:column;align-items:center;gap:6px}
+.field-label{font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:14px}
+.step{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  border:1px solid var(--line);background:#0A0A0B;color:var(--fg);
+  font-size:24px;font-weight:400;line-height:0;display:grid;place-items:center;
+}
+.step:active{background:#151517}
+.step:disabled{opacity:.28}
+.value{
+  width:186px;height:58px;text-align:center;
+  border:2px solid var(--accent);border-radius:16px;background:#020403;
+  color:var(--fg);font-size:30px;font-weight:700;letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+  box-shadow:0 0 22px -8px var(--accent);
+}
+.value:focus{outline:none;border-color:#5BFFC6;box-shadow:0 0 26px -6px var(--accent)}
+.value.narrow{width:146px}
+
+/* opzioni */
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:2px}
+.row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 14px;border:1px solid var(--line);border-radius:16px;background:var(--card);
+}
+.sub-row{                                   /* riga slim, senza card */
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;
+}
+.sub-row .row-title{font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.row-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.row-title{font-size:14.5px;font-weight:600}
+.row-sub{font-size:12px;color:var(--muted);line-height:1.35}
+.seg{display:flex;flex:0 0 auto;background:#151517;border-radius:12px;padding:3px;gap:3px}
+.seg button{
+  padding:8px 11px;border-radius:9px;font-size:11.5px;font-weight:800;letter-spacing:.06em;
+  color:var(--muted);white-space:nowrap;
+}
+.seg button.on{background:var(--accent);color:#00120A}
+.mini{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.mini .step{width:36px;height:36px;flex:0 0 36px;font-size:21px}
+.mini .val{min-width:56px;text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.mini .val.off{color:var(--muted)}
+.fade{opacity:.34;pointer-events:none}
+
+/* footer / CTA */
+.foot{flex:0 0 auto;padding:10px 0 max(14px, var(--safe-b));display:flex;flex-direction:column;gap:10px}
+.total{text-align:center;font-size:13.5px;color:var(--muted);font-weight:500}
+.total b{color:var(--fg);font-weight:700;font-variant-numeric:tabular-nums}
+.cta{
+  width:100%;height:58px;border-radius:18px;
+  background:var(--accent);color:#00120A;
+  font-size:17px;font-weight:800;letter-spacing:.12em;
+  box-shadow:0 10px 34px -14px var(--accent);
+}
+.cta:active{background:#00D98D}
+
+/* ============================== RUN SCREEN ============================== */
+#screen-run{justify-content:space-between;background:#000}
+#screen-run::before{                       /* alone del colore di fase */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 60% at 50% 42%, color-mix(in srgb, var(--phase) 22%, transparent), transparent 70%);
+  opacity:.55;transition:opacity .25s ease;
+}
+#screen-run>*{position:relative;z-index:1}
+#screen-run.warn::before{animation:pulse .5s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.35}to{opacity:1}}
+
+.run-top{
+  flex:0 0 auto;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
+  height:52px;margin-top:6px;
+}
+.counters{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+.counters b{color:var(--fg)}
+.counters .sep{opacity:.45;margin:0 6px}
+
+.stage{flex:1 1 auto;min-height:0;display:grid;place-items:center;position:relative}
+.ring{width:min(76vw, 330px);aspect-ratio:1;display:block;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-linecap:round}
+.ring .bg{stroke:#141416;stroke-width:9}
+.ring .fg{stroke:var(--phase);stroke-width:9}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.phase-label{font-size:15px;font-weight:800;letter-spacing:.28em;color:var(--phase)}
+.time{
+  font-size:clamp(54px, 18vw, 104px);font-weight:800;line-height:1;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+}
+.time.big{font-size:clamp(64px, 21vw, 124px)}
+.hint{font-size:13px;color:var(--muted);letter-spacing:.04em;text-align:center;padding:0 20px}
+
+/* gate manuale + fine */
+.overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  background:#000;padding:0 6px;
+}
+.big-btn{
+  width:min(72vw,290px);aspect-ratio:1;border-radius:50%;
+  background:var(--accent);color:#00120A;
+  font-size:21px;font-weight:800;letter-spacing:.08em;line-height:1.25;
+  box-shadow:0 0 70px -18px var(--accent);
+  display:grid;place-items:center;padding:0 22px;
+}
+.big-btn:active{background:#00D98D;transform:scale(.96)}
+.ov-title{font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--muted);text-align:center}
+.done-mark{font-size:60px;line-height:1}
+.ghost{
+  height:50px;padding:0 24px;border-radius:16px;border:1px solid var(--line);
+  font-size:14.5px;font-weight:700;letter-spacing:.08em;background:#0B0B0C;
+}
+.ghost:active{background:#161618}
+
+.run-ctrl{flex:0 0 auto;display:flex;gap:10px;padding:10px 0 max(14px,var(--safe-b))}
+.run-ctrl button{
+  flex:1;height:56px;border-radius:18px;background:#0D0D0F;border:1px solid var(--line);
+  font-size:13px;font-weight:700;letter-spacing:.08em;
+}
+.run-ctrl button:active{background:#18181B}
+#btn-pause{background:var(--accent);color:#00120A;border-color:transparent;flex:1.5}
+#btn-pause.paused{background:#0D0D0F;color:var(--fg);border-color:var(--line)}
+
+/* toast */
+.toast{
+  position:absolute;left:50%;bottom:calc(96px + var(--safe-b));transform:translateX(-50%) translateY(10px);
+  background:#151517;border:1px solid #2A2A2E;color:#fff;border-radius:999px;
+  padding:10px 18px;font-size:13px;font-weight:600;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:20;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+@media (max-height:700px){
+  .value{height:56px;font-size:28px}
+  .fields-in{gap:11px}
+  .field{gap:5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ IMPOSTAZIONI ============================ -->
+<section class="screen" id="screen-settings">
+  <header class="hdr">
+    <button class="icon-btn" id="btn-back" aria-label="Indietro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1>TABATA</h1>
+    <button class="icon-btn" id="btn-fav" aria-label="Salva come preferito" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>
+    </button>
+  </header>
+
+  <main class="fields">
+   <div class="fields-in">
+    <button class="preset" id="preset" hidden>PREFERITO · <b id="preset-txt"></b></button>
+
+    <div class="field">
+      <span class="field-label" id="lbl-ex">Esercizi</span>
+      <div class="stepper">
+        <button class="step" data-act="dec" data-key="ex" aria-label="Diminuisci esercizi">−</button>
+        <input class="value narrow" id="in-ex" inputmode="numeric" enterkeyhint="done"
+               autocomplete="off" autocorrect="off" spellcheck="false" aria-labelledby="lbl-ex">
+        <button class="step" data-act="inc" data-key="ex" aria-label="Aumenta esercizi">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label" id="lbl-series">Serie per esercizio</span>
+      <div class="stepper">
+        <button class="step" data-act="dec" data-key="series" aria-label="Diminuisci serie">−</button>
+        <input class="value narrow" id="in-series" inputmode="numeric" enterkeyhint="done"
+               autocomplete="off" autocorrect="off" spellcheck="false" aria-labelledby="lbl-series">
+        <button class="step" data-act="inc" data-key="series" aria-label="Aumenta serie">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label" id="lbl-work">Lavoro</span>
+      <div class="stepper">
+        <button class="step" data-act="dec" data-key="work" aria-label="Diminuisci lavoro">−</button>
+        <input class="value" id="in-work" inputmode="numeric" enterkeyhint="done"
+               autocomplete="off" autocorrect="off" spellcheck="false" aria-labelledby="lbl-work">
+        <button class="step" data-act="inc" data-key="work" aria-label="Aumenta lavoro">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label" id="lbl-rest">Riposo</span>
+      <div class="stepper">
+        <button class="step" data-act="dec" data-key="rest" aria-label="Diminuisci riposo">−</button>
+        <input class="value" id="in-rest" inputmode="numeric" enterkeyhint="done"
+               autocomplete="off" autocorrect="off" spellcheck="false" aria-labelledby="lbl-rest">
+        <button class="step" data-act="inc" data-key="rest" aria-label="Aumenta riposo">+</button>
+      </div>
+    </div>
+
+    <div class="opts">
+      <div class="row">
+        <div class="row-txt">
+          <span class="row-title">Preparazione</span>
+          <span class="row-sub" id="prep-sub">Countdown prima di ogni esercizio</span>
+        </div>
+        <div class="mini">
+          <button class="step" data-act="dec" data-key="prep" aria-label="Diminuisci preparazione">−</button>
+          <span class="val" id="prep-val">10s</span>
+          <button class="step" data-act="inc" data-key="prep" aria-label="Aumenta preparazione">+</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-txt">
+          <span class="row-title">Tra le serie</span>
+          <span class="row-sub" id="serie-sub">Countdown automatico</span>
+        </div>
+        <div class="seg" id="seg-serie" role="group" aria-label="Pausa tra le serie">
+          <button data-val="auto" class="on">AUTO</button>
+          <button data-val="man">MANUALE</button>
+        </div>
+      </div>
+
+      <div class="sub-row" id="row-trans">
+        <span class="row-title">Durata transizione</span>
+        <div class="mini">
+          <button class="step" data-act="dec" data-key="trans" aria-label="Diminuisci transizione">−</button>
+          <span class="val" id="trans-val">10s</span>
+          <button class="step" data-act="inc" data-key="trans" aria-label="Aumenta transizione">+</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-txt">
+          <span class="row-title">Tra gli esercizi</span>
+          <span class="row-sub" id="ex-sub">Pulsante “PROSSIMO ESERCIZIO”</span>
+        </div>
+        <div class="seg" id="seg-ex" role="group" aria-label="Pausa tra gli esercizi">
+          <button data-val="auto">AUTO</button>
+          <button data-val="man" class="on">MANUALE</button>
+        </div>
+      </div>
+    </div>
+   </div>
+  </main>
+
+  <footer class="foot">
+    <p class="total">Tempo totale: <b id="total">16:00</b></p>
+    <button class="cta" id="btn-start">AVVIA IL TIMER</button>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+</section>
+
+<!-- ============================ TIMER ============================ -->
+<section class="screen" id="screen-run" hidden>
+  <div class="run-top">
+    <button class="icon-btn" id="btn-close" aria-label="Chiudi timer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="counters">
+      ESERCIZIO <b id="cur-ex">1</b>/<b id="tot-ex">3</b><span class="sep">·</span>SERIE <b id="cur-serie">1</b>/<b id="tot-serie">5</b>
+    </div>
+    <span></span>
+  </div>
+
+  <div class="stage">
+    <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="bg" cx="100" cy="100" r="90"></circle>
+      <circle class="fg" id="ring-fg" cx="100" cy="100" r="90"></circle>
+    </svg>
+    <div class="center">
+      <span class="phase-label" id="phase-label">LAVORO</span>
+      <span class="time" id="time">00:30</span>
+      <span class="hint" id="hint"></span>
+    </div>
+
+    <!-- gate manuale -->
+    <div class="overlay" id="gate" hidden>
+      <span class="ov-title" id="gate-title">RIPOSO TERMINATO</span>
+      <button class="big-btn" id="btn-next">PROSSIMA<br>SERIE</button>
+      <span class="hint" id="gate-hint"></span>
+    </div>
+
+    <!-- fine allenamento -->
+    <div class="overlay" id="done" hidden>
+      <span class="done-mark">🏁</span>
+      <span class="ov-title">ALLENAMENTO COMPLETATO</span>
+      <span class="time" id="done-time" style="font-size:44px">16:00</span>
+      <span class="hint">durata programmata</span>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="ghost" id="btn-again">RIPETI</button>
+        <button class="ghost" id="btn-home">IMPOSTAZIONI</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="run-ctrl" id="run-ctrl">
+    <button id="btn-prev">INDIETRO</button>
+    <button id="btn-pause">PAUSA</button>
+    <button id="btn-skip">SALTA</button>
+  </div>
+</section>
+
+<script>
+(() => {
+'use strict';
+
+/* ============================== STATO ============================== */
+const DEFAULTS = {
+  ex:3,            // esercizi del workout
+  series:5,        // serie per esercizio
+  work:30, rest:30,
+  prep:10,         // countdown prima di ogni esercizio (0 = nessuno)
+  autoSerie:true,  // true = countdown automatico tra le serie, false = pulsante
+  trans:10,        // durata del countdown tra le serie
+  autoEx:false     // true = passa da solo all'esercizio dopo, false = pulsante
+};
+const LIMITS = {
+  ex:    {min:1, max:30,   stepFn:()=>1},
+  series:{min:1, max:99,   stepFn:()=>1},
+  work:  {min:5, max:3599, stepFn:v=>v>=60?10:5},
+  rest:  {min:5, max:3599, stepFn:v=>v>=60?10:5},
+  prep:  {min:0, max:120,  stepFn:()=>5},
+  trans: {min:3, max:120,  stepFn:()=>1}
+};
+const FAV_KEYS = ['ex','series','work','rest','prep','autoSerie','trans','autoEx'];
+const KEY = 'tabata.settings', FAV = 'tabata.favorite';
+
+function normalizeSettings(raw, fallback = DEFAULTS){
+  if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return fallback && Object.assign({}, fallback);
+  const v = Object.assign({}, raw);
+  if(v.auto !== undefined && v.autoSerie === undefined) v.autoSerie = v.auto;   // vecchie impostazioni
+  const out = Object.assign({}, fallback || DEFAULTS);
+  ['ex','series','work','rest','prep','trans'].forEach(key => {
+    const n = Number(v[key]);
+    if(Number.isFinite(n)){
+      const L = LIMITS[key];
+      out[key] = Math.max(L.min, Math.min(L.max, Math.round(n)));
+    }
+  });
+  ['autoSerie','autoEx'].forEach(key => {
+    if(typeof v[key] === 'boolean') out[key] = v[key];
+  });
+  return out;
+}
+function load(k, fb){
+  try{
+    const raw = localStorage.getItem(k);
+    if(!raw) return fb && Object.assign({}, fb);
+    const parsed = JSON.parse(raw);
+    if(k === FAV && (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))) return null;
+    return normalizeSettings(parsed, fb || DEFAULTS);
+  }catch(_){ return fb && Object.assign({}, fb); }
+}
+let S = load(KEY, DEFAULTS);
+let fav = load(FAV, null);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(_){} }
+
+/* ============================== UTIL ============================== */
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const fmt = s => {
+  s = Math.max(0, Math.round(s));
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+};
+
+/* ============================== AUDIO (Web Audio API) ============================== */
+let ac = null;
+function audioInit(){                       // va chiamato DENTRO un gesto utente (iOS)
+  try{
+    if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+    const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource();   // primer muto
+    s.buffer = b; s.connect(ac.destination); s.start(0);
+  }catch(_){ ac = null; }
+}
+function tone(freq, dur, vol, when){
+  if(!ac) return;
+  const t0 = (when ?? ac.currentTime);
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+function buzz(ms){ if(navigator.vibrate){ try{ navigator.vibrate(ms); }catch(_){} } }
+const sfxCount = () => { tone(880, .12, .35); buzz(60); };            // 3-2-1
+const sfxWork  = () => { tone(1320, .30, .40); tone(1760,.30,.25, ac && ac.currentTime+0.02); buzz([90,60,90]); };
+const sfxRest  = () => { tone(520, .28, .35); buzz(120); };
+const sfxDone  = () => { if(!ac) return; const t = ac.currentTime;
+  tone(880,.18,.35,t); tone(1174,.18,.35,t+.18); tone(1568,.45,.40,t+.36); buzz([120,80,220]); };
+
+/* ============================== WAKE LOCK ============================== */
+let wl = null;
+async function wakeOn(){
+  try{ if('wakeLock' in navigator && !wl) wl = await navigator.wakeLock.request('screen'); }catch(_){}
+}
+function wakeOff(){ try{ wl && wl.release(); }catch(_){} wl = null; }
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible'){
+    if(running) wakeOn();
+    if(ac && ac.state === 'suspended') ac.resume();
+    if(running){ step(); ensureLoop(); }        // recupera il tempo passato in background
+  }
+});
+
+/* ============================== IMPOSTAZIONI: UI ============================== */
+const inEx = $('in-ex'), inSeries = $('in-series'), inWork = $('in-work'), inRest = $('in-rest');
+
+function totalSeconds(){
+  const gaps = Math.max(0, S.series - 1);
+  const perEx = S.prep + S.series * S.work + gaps * S.rest + (S.autoSerie ? gaps * S.trans : 0);
+  return S.ex * perEx;
+}
+function isFav(){ return !!fav && FAV_KEYS.every(k => fav[k] === S[k]); }
+
+function renderSettings(){
+  if(document.activeElement !== inEx)     inEx.value     = String(S.ex);
+  if(document.activeElement !== inSeries) inSeries.value = String(S.series);
+  if(document.activeElement !== inWork)   inWork.value   = fmt(S.work);
+  if(document.activeElement !== inRest)   inRest.value   = fmt(S.rest);
+
+  $('prep-val').textContent = S.prep ? S.prep + 's' : 'NO';
+  $('prep-val').classList.toggle('off', !S.prep);
+  $('prep-sub').textContent = S.prep
+    ? 'Countdown prima di ogni esercizio'
+    : 'Disattivata: si parte subito col lavoro';
+
+  $('trans-val').textContent = S.trans + 's';
+  segSet('seg-serie', S.autoSerie ? 'auto' : 'man');
+  segSet('seg-ex',    S.autoEx    ? 'auto' : 'man');
+  $('serie-sub').textContent = S.autoSerie
+    ? 'Countdown automatico dopo il riposo'
+    : 'Pulsante “PROSSIMA SERIE” da toccare';
+  $('ex-sub').textContent = S.autoEx
+    ? 'Si passa da solo all’esercizio dopo'
+    : 'Pulsante “PROSSIMO ESERCIZIO” da toccare';
+  $('row-trans').classList.toggle('fade', !S.autoSerie);
+
+  $('total').textContent = fmt(totalSeconds());
+  $('tot-ex').textContent = String(S.ex);
+  $('tot-serie').textContent = String(S.series);
+
+  $('btn-fav').classList.toggle('on', isFav());
+  $('btn-fav').setAttribute('aria-pressed', String(isFav()));
+  $('preset').hidden = !fav;
+  if(fav) $('preset-txt').textContent = `${fav.ex} eserc. × ${fav.series} serie · ${fmt(fav.work)}/${fmt(fav.rest)}`;
+  save();
+}
+function segSet(id, val){
+  $(id).querySelectorAll('button').forEach(b => {
+    const on = b.dataset.val === val;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+}
+function setVal(key, v){
+  const L = LIMITS[key];
+  S[key] = clamp(Math.round(v), L.min, L.max);
+  renderSettings();
+}
+
+/* --- steppers con auto-ripetizione al tocco prolungato --- */
+document.querySelectorAll('.step').forEach(btn => {
+  const key = btn.dataset.key, dir = btn.dataset.act === 'inc' ? 1 : -1;
+  let t0 = null, t1 = null, n = 0;
+  const bump = () => {
+    const L = LIMITS[key];
+    setVal(key, S[key] + dir * L.stepFn(S[key]));
+    if(n++ === 0) buzz(8);
+  };
+  const start = e => {
+    e.preventDefault();
+    document.activeElement && document.activeElement.blur();
+    n = 0; bump();
+    t0 = setTimeout(() => { t1 = setInterval(bump, 80); }, 420);
+  };
+  const stop = () => { clearTimeout(t0); clearInterval(t1); t0 = t1 = null; };
+  btn.addEventListener('pointerdown', start);
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => btn.addEventListener(ev, stop));
+});
+
+/* --- input: tempi in stile cronometro ("130" -> 01:30), contatori interi --- */
+function bindTime(el, key){
+  let digits = '';
+  const preview = () => {
+    const mm = parseInt(digits.slice(0,-2) || '0', 10);
+    const ss = parseInt(digits.slice(-2) || '0', 10);
+    S[key] = clamp(mm * 60 + ss, 0, LIMITS[key].max);
+    el.value = digits ? (digits.padStart(4,'0').slice(0,2) + ':' + digits.padStart(4,'0').slice(2)) : '';
+    $('total').textContent = fmt(totalSeconds());
+  };
+  el.addEventListener('focus', () => { digits = ''; el.value = ''; });
+  el.addEventListener('beforeinput', e => {
+    if(e.inputType === 'deleteContentBackward'){
+      e.preventDefault(); digits = digits.slice(0,-1); preview(); return;
+    }
+    if(e.inputType && e.inputType.startsWith('insert')){
+      const add = String(e.data || '').replace(/\D/g,'');
+      if(add){ e.preventDefault(); digits = (digits + add).slice(-4); preview(); }
+    }
+  });
+  el.addEventListener('input', () => {
+    // Fallback per browser che non gestiscono beforeinput in modo completo.
+    const d = el.value.replace(/\D/g,'').slice(-4);
+    if(d !== digits){ digits = d; preview(); }
+  });
+  el.addEventListener('blur', () => {
+    setVal(key, S[key] || LIMITS[key].min);
+    el.value = fmt(S[key]);
+  });
+  el.addEventListener('keydown', e => { if(e.key === 'Enter') el.blur(); });
+}
+function bindInt(el, key, mirror){
+  el.addEventListener('focus', () => { el.value = ''; });
+  el.addEventListener('input', () => {
+    const d = el.value.replace(/\D/g,'').slice(0,2);
+    el.value = d;
+    S[key] = clamp(parseInt(d || '0', 10), 0, LIMITS[key].max);
+    $('total').textContent = fmt(totalSeconds());
+    if(mirror) $(mirror).textContent = String(Math.max(1, S[key]));
+  });
+  el.addEventListener('blur', () => setVal(key, S[key] || 1));
+  el.addEventListener('keydown', e => { if(e.key === 'Enter') el.blur(); });
+}
+bindTime(inWork, 'work');
+bindTime(inRest, 'rest');
+bindInt(inEx, 'ex', 'tot-ex');
+bindInt(inSeries, 'series', 'tot-serie');
+
+/* --- segmenti, preferito, back --- */
+$('seg-serie').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  S.autoSerie = b.dataset.val === 'auto'; buzz(10); renderSettings();
+});
+$('seg-ex').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  S.autoEx = b.dataset.val === 'auto'; buzz(10); renderSettings();
+});
+$('btn-fav').addEventListener('click', () => {
+  if(isFav()){ fav = null; localStorage.removeItem(FAV); toast('Preferito rimosso'); }
+  else { fav = Object.assign({}, S); localStorage.setItem(FAV, JSON.stringify(fav)); toast('Preset salvato'); }
+  renderSettings();
+});
+$('preset').addEventListener('click', () => {
+  if(!fav) return;
+  S = Object.assign({}, S, fav); renderSettings(); toast('Preset caricato');
+});
+$('btn-back').addEventListener('click', () => {
+  // Non uscire accidentalmente dalla PWA o tornare a un sito esterno.
+  if(!document.referrer) return toast('Sei già nella schermata iniziale');
+  try{
+    const prev = new URL(document.referrer);
+    if(prev.origin === location.origin) history.back();
+    else toast('Sei già nella schermata iniziale');
+  }catch(_){ toast('Sei già nella schermata iniziale'); }
+});
+
+let toastT = null;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+/* ============================== MOTORE TIMER ============================== */
+const RUN = $('screen-run'), SET = $('screen-settings');
+const ringFg = $('ring-fg');
+const CIRC = 2 * Math.PI * 90;
+ringFg.style.strokeDasharray = CIRC;
+
+let seq = [], idx = -1, endAt = 0, left = 0, running = false, paused = false, raf = 0, lastBeep = -1;
+let watchdog = 0;   // rete di sicurezza: su iOS il rAF si ferma se l'app va in background
+
+/* Struttura: per ogni esercizio -> [preparazione] + serie (lavoro / riposo / transizione).
+   L'ultima serie di ogni esercizio chiude col lavoro: niente riposo finale. */
+function buildSeq(){
+  const out = [];
+  for(let e = 1; e <= S.ex; e++){
+    if(e > 1 && !S.autoEx) out.push({ t:'gate', kind:'ex', ex:e, serie:1 });
+    if(S.prep > 0) out.push({ t:'prep', dur:S.prep, ex:e, serie:1 });
+    for(let s = 1; s <= S.series; s++){
+      out.push({ t:'work', dur:S.work, ex:e, serie:s });
+      if(s < S.series){
+        out.push({ t:'rest', dur:S.rest, ex:e, serie:s });
+        if(S.autoSerie) out.push({ t:'trans', dur:S.trans, ex:e, serie:s+1 });
+        else            out.push({ t:'gate', kind:'serie', ex:e, serie:s+1 });
+      }
+    }
+  }
+  return out;
+}
+const PH = {
+  prep:  { label:'PREPARAZIONE', color:'#4DA3FF' },
+  work:  { label:'LAVORO',       color:'#00F5A0' },
+  rest:  { label:'RIPOSO',       color:'#FFB020' },
+  trans: { label:'TRANSIZIONE',  color:'#4DA3FF' }
+};
+
+function startWorkout(){
+  audioInit(); wakeOn();
+  seq = buildSeq(); idx = -1; running = true; paused = false;
+  SET.hidden = true; RUN.hidden = false;
+  $('gate').hidden = true; $('done').hidden = true; $('run-ctrl').hidden = false;
+  $('tot-ex').textContent = String(S.ex);
+  $('tot-serie').textContent = String(S.series);
+  resetPauseBtn();
+  clearInterval(watchdog);
+  watchdog = setInterval(() => { step(); ensureLoop(); }, 400);
+  goPhase(0, performance.now());
+}
+function goPhase(i, base){
+  const p = seq[i];
+  if(!p) return finish();
+  idx = i; lastBeep = -1;
+  $('gate').hidden = true;
+  RUN.classList.remove('warn');
+  $('cur-ex').textContent = String(p.ex);
+  $('cur-serie').textContent = String(p.serie);
+
+  if(p.t === 'gate'){                              // attesa manuale
+    paused = true; left = 0;
+    cancelAnimationFrame(raf); raf = 0;
+    const isEx = p.kind === 'ex';
+    $('gate-title').textContent = isEx ? `ESERCIZIO ${p.ex - 1} COMPLETATO` : 'RIPOSO TERMINATO';
+    $('btn-next').innerHTML = isEx ? 'PROSSIMO<br>ESERCIZIO' : 'PROSSIMA<br>SERIE';
+    $('gate-hint').textContent = isEx
+      ? `Esercizio ${p.ex} di ${S.ex}`
+      : `Serie ${p.serie} di ${S.series} · esercizio ${p.ex}`;
+    $('gate').hidden = false;
+    $('run-ctrl').hidden = true;
+    sfxRest();
+    return;
+  }
+
+  $('run-ctrl').hidden = false;
+  endAt = base + p.dur * 1000;
+  left = endAt - performance.now();
+  paused = false;
+  applyPhase(p);
+  if(performance.now() - base < 1500){            // niente suoni se stiamo recuperando ritardo
+    p.t === 'work' ? sfxWork() : sfxRest();
+  }
+  render();
+  ensureLoop();
+}
+function applyPhase(p){
+  RUN.style.setProperty('--phase', PH[p.t].color);
+  $('phase-label').textContent = PH[p.t].label;
+  $('time').classList.toggle('big', p.t === 'work');
+  $('hint').textContent =
+      p.t === 'prep'  ? `Preparati · esercizio ${p.ex} di ${S.ex}`
+    : p.t === 'trans' ? `Prossima serie: ${p.serie} di ${S.series}`
+    : p.t === 'rest'  ? 'Recupera'
+    : '';
+}
+function loop(){ raf = 0; step(); ensureLoop(); }
+function ensureLoop(){ if(running && !paused && !raf) raf = requestAnimationFrame(loop); }
+function step(){
+  if(!running || paused) return;
+  left = endAt - performance.now();
+  if(left <= 0){                                   // avanza (anche più fasi, se tornati da background)
+    const base = endAt, p = seq[idx];
+    if(p && p.t === 'work') buzz(160);
+    goPhase(idx + 1, base);
+    return;
+  }
+  const sec = Math.ceil(left / 1000);
+  if(sec <= 3 && sec !== lastBeep){ lastBeep = sec; sfxCount(); }
+  RUN.classList.toggle('warn', sec <= 3);
+  render();
+}
+function render(){
+  const p = seq[idx]; if(!p || p.t === 'gate') return;
+  const secLeft = Math.max(0, left / 1000);
+  $('time').textContent = fmt(Math.ceil(secLeft));
+  ringFg.style.strokeDashoffset = CIRC * (1 - clamp(secLeft / p.dur, 0, 1));
+}
+function finish(){
+  running = false; paused = false;
+  cancelAnimationFrame(raf); raf = 0; clearInterval(watchdog); watchdog = 0;
+  RUN.classList.remove('warn');
+  RUN.style.setProperty('--phase', '#00F5A0');
+  $('run-ctrl').hidden = true; $('gate').hidden = true;
+  $('done-time').textContent = fmt(totalSeconds());
+  $('done').hidden = false;
+  sfxDone(); wakeOff();
+}
+function stopWorkout(){
+  running = false; paused = false;
+  cancelAnimationFrame(raf); raf = 0; clearInterval(watchdog); watchdog = 0;
+  RUN.classList.remove('warn');
+  RUN.hidden = true; SET.hidden = false;
+  $('done').hidden = true; $('gate').hidden = true;
+  wakeOff(); renderSettings();
+}
+function resetPauseBtn(){ const b = $('btn-pause'); b.textContent = 'PAUSA'; b.classList.remove('paused'); }
+
+/* --- comandi --- */
+$('btn-start').addEventListener('click', () => {
+  document.activeElement && document.activeElement.blur();
+  if(S.ex < 1 || S.series < 1 || S.work < 1) return toast('Controlla i valori');
+  startWorkout();
+});
+$('btn-pause').addEventListener('click', () => {
+  if(!running) return;
+  const b = $('btn-pause');
+  if(paused){
+    endAt = performance.now() + left; paused = false;
+    b.textContent = 'PAUSA'; b.classList.remove('paused');
+    wakeOn(); ensureLoop();
+  }else{
+    left = endAt - performance.now(); paused = true;
+    b.textContent = 'RIPRENDI'; b.classList.add('paused');
+    RUN.classList.remove('warn');
+  }
+  buzz(12);
+});
+$('btn-skip').addEventListener('click', () => { if(running){ resetPauseBtn(); goPhase(idx + 1, performance.now()); } });
+$('btn-prev').addEventListener('click', () => { if(running){ resetPauseBtn(); goPhase(Math.max(0, idx - 1), performance.now()); } });
+$('btn-next').addEventListener('click', () => { audioInit(); resetPauseBtn(); goPhase(idx + 1, performance.now()); });
+$('btn-again').addEventListener('click', startWorkout);
+$('btn-home').addEventListener('click', stopWorkout);
+$('btn-close').addEventListener('click', stopWorkout);
+
+/* ============================== iOS: limita solo il rubber-band ============================== */
+document.addEventListener('touchmove', e => {
+  const t = e.target;
+  if(!(t instanceof Element) || !t.closest('.fields')) e.preventDefault();
+}, {passive:false});
+
+/* ============================== BOOT ============================== */
+renderSettings();
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+})();
+</script>
+</body>
+</html>
