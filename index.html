@@ -1396,7 +1396,7 @@ function stopWorkout(){
 }
 function resetPauseBtn(){ const b = $('btn-pause'); b.textContent = 'PAUSA'; b.classList.remove('paused'); }
 
-$('btn-start').addEventListener('click', () => { document.activeElement && document.activeElement.blur(); if(S.ex < 1 \vert{}\vert{} S.series < 1 \vert{}\vert{} S.work < 1) return toast('Controlla i valori'); startWorkout(); });$('btn-pause').addEventListener('click', () => {
+$('btn-start').addEventListener('click', () => { document.activeElement && document.activeElement.blur(); if(S.ex < 1 || S.series < 1 || S.work < 1) return toast('Controlla i valori'); startWorkout(); });$('btn-pause').addEventListener('click', () => {
   if(!running) return;
   const b = $('btn-pause');
   if(paused){
