@@ -726,6 +726,259 @@ const CATALOG = {
     ],
     svg:`<svg class="anim-svg" viewBox="0 0 120 120" fill="none" stroke="#d7e9a4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="94" x2="110" y2="94" stroke="#2b4037" stroke-width="2.5"/><circle cx="24" cy="84" r="7"/><g class="frame-a"><path d="M32 88 L68 88 L68 62 L92 62" stroke-width="4"/></g><g class="frame-b"><ellipse class="muscle-glow" cx="52" cy="80" rx="10" ry="6"/><path d="M32 88 L56 76 L42 50 L62 42" stroke-width="4"/></g></svg>`
   },
+
+  db_deadlift: {
+    id:'db_deadlift', name:'Stacco da terra 2 manubri', equip:'Manubri',
+    primary:['Femorali','Glutei','Schiena'], secondary:['Core','Trapezio'],
+    unilateral:false,
+    cue:'Schiena neutra, spingi con i talloni, manubri vicini alle gambe.',
+    steps:[
+      'Piedi larghezza spalle, manubri a terra davanti alle tibie.',
+      'Fletti anche e ginocchia mantenendo la schiena dritta.',
+      'Risali spingendo i talloni e stringendo i glutei in alto.'
+    ],
+    svg:''
+  },
+  db_lunge_alt: {
+    id:'db_lunge_alt', name:'Affondi alternati 2 manubri', equip:'Manubri',
+    primary:['Quadricipiti','Glutei'], secondary:['Femorali','Core'],
+    unilateral:true,
+    cue:'Passo lungo, ginocchio posteriore quasi a terra, busto eretto.',
+    steps:[
+      'In piedi con manubri ai fianchi.',
+      'Fai un passo avanti e scendi fino a 90° su entrambe le ginocchia.',
+      'Spingi con la gamba anteriore per tornare in piedi e alterna.'
+    ],
+    svg:''
+  },
+  double_crunch: {
+    id:'double_crunch', name:'Doppio Crunch', equip:'Corpo libero',
+    primary:['Addome'], secondary:['Obliqui'],
+    unilateral:false,
+    cue:'Avvicina contemporaneamente ginocchia e petto.',
+    steps:[
+      'Sdraiato supino, mani dietro la testa, gambe piegate.',
+      'Solleva contemporaneamente spalle e bacino portando ginocchia verso i gomiti.',
+      'Torna controllato senza appoggiare completamente.'
+    ],
+    svg:''
+  },
+  goblet_squat: {
+    id:'goblet_squat', name:'Goblet Squat 1 manubrio', equip:'Manubrio',
+    primary:['Quadricipiti','Glutei'], secondary:['Core'],
+    unilateral:false,
+    cue:'Manubrio al petto, schiena dritta, scendi in profondità.',
+    steps:[
+      'Tieni un manubrio verticale contro il petto.',
+      'Scendi in squat mantenendo i gomiti tra le ginocchia.',
+      'Risali spingendo i talloni senza inarcare la schiena.'
+    ],
+    svg:''
+  },
+  rdl_db: {
+    id:'rdl_db', name:'Stacchi rumeni 2 manubri', equip:'Manubri',
+    primary:['Femorali','Glutei'], secondary:['Schiena'],
+    unilateral:false,
+    cue:'Gambe quasi tese, scendi con la schiena dritta.',
+    steps:[
+      'In piedi, manubri davanti alle cosce.',
+      'Spingi il bacino indietro piegando leggermente le ginocchia.',
+      'Torna su stringendo i glutei.'
+    ],
+    svg:''
+  },
+  mountain_climber: {
+    id:'mountain_climber', name:'Mountain Climber', equip:'Corpo libero',
+    primary:['Core','Spalle'], secondary:['Quadricipiti'],
+    unilateral:false,
+    cue:'Movimento rapido delle ginocchia verso il petto in posizione plank.',
+    steps:[
+      'Posizione plank sulle mani.',
+      'Porta alternativamente le ginocchia al petto mantenendo il bacino basso.',
+      'Ritmo costante e core contratto.'
+    ],
+    svg:''
+  },
+  wide_y_back: {
+    id:'wide_y_back', name:'Wide Y Back 2 manubri', equip:'Manubri',
+    primary:['Deltoide post.','Trapezio'], secondary:['Romboidi'],
+    unilateral:false,
+    cue:'Braccia a Y, tira i manubri verso l’alto aprendo il petto.',
+    steps:[
+      'Piegato in avanti a 45°, manubri sotto le spalle.',
+      'Solleva le braccia a forma di Y stringendo le scapole.',
+      'Controlla la discesa.'
+    ],
+    svg:''
+  },
+  db_bench_press: {
+    id:'db_bench_press', name:'Spinte orizzontali 2 manubri', equip:'Manubri',
+    primary:['Pettorali','Tricipiti'], secondary:['Deltoide ant.'],
+    unilateral:false,
+    cue:'Spingi i manubri verso l’alto partendo dal petto.',
+    steps:[
+      'Sdraiato o in piedi, manubri all’altezza del petto.',
+      'Spingi in alto fino a estendere quasi completamente le braccia.',
+      'Torna controllato al petto.'
+    ],
+    svg:''
+  },
+  prone_fly: {
+    id:'prone_fly', name:'Volare prono 2 manubri', equip:'Manubri',
+    primary:['Deltoide post.','Romboidi'], secondary:['Trapezio'],
+    unilateral:false,
+    cue:'Braccia aperte, solleva i manubri lateralmente.',
+    steps:[
+      'Piegato in avanti, braccia sotto le spalle.',
+      'Solleva i manubri lateralmente stringendo le scapole.',
+      'Controlla la discesa.'
+    ],
+    svg:''
+  },
+  french_press_behind: {
+    id:'french_press_behind', name:'French Press dietro nuca 1 manubrio', equip:'Manubrio',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Manubrio dietro la testa, estendi le braccia.',
+    steps:[
+      'Manubrio tenuto con entrambe le mani dietro la nuca.',
+      'Estendi le braccia verso l’alto senza muovere i gomiti.',
+      'Torna controllato.'
+    ],
+    svg:''
+  },
+  curl_wall: {
+    id:'curl_wall', name:'Curl contro muro 2 manubri', equip:'Manubri',
+    primary:['Bicipiti'], secondary:[],
+    unilateral:false,
+    cue:'Schiena appoggiata al muro, curl controllato.',
+    steps:[
+      'Schiena e testa contro il muro, manubri ai fianchi.',
+      'Esegui il curl portando i manubri alle spalle.',
+      'Torna lentamente senza staccare la schiena.'
+    ],
+    svg:''
+  },
+  db_fly: {
+    id:'db_fly', name:'Croci orizzontali 2 manubri', equip:'Manubri',
+    primary:['Pettorali'], secondary:['Deltoide ant.'],
+    unilateral:false,
+    cue:'Braccia aperte, avvicina i manubri davanti al petto.',
+    steps:[
+      'Sdraiato, braccia aperte con manubri.',
+      'Avvicina i manubri sopra il petto con leggera flessione dei gomiti.',
+      'Torna aprendo controllato.'
+    ],
+    svg:''
+  },
+  neutral_row: {
+    id:'neutral_row', name:'Rematore presa neutra 2 manubri', equip:'Manubri',
+    primary:['Dorsali','Romboidi'], secondary:['Bicipiti'],
+    unilateral:false,
+    cue:'Presa neutra, tira i manubri verso il bacino.',
+    steps:[
+      'Piegato in avanti, manubri con palmi rivolti verso l’interno.',
+      'Tira i manubri verso il basso addome stringendo le scapole.',
+      'Controlla la discesa.'
+    ],
+    svg:''
+  },
+  seated_military: {
+    id:'seated_military', name:'Military Press 2 manubri seduto', equip:'Manubri',
+    primary:['Deltoidi','Tricipiti'], secondary:['Trapezio'],
+    unilateral:false,
+    cue:'Spingi i manubri sopra la testa partendo dalle spalle.',
+    steps:[
+      'Seduto a terra o su sedia, manubri all’altezza delle spalle.',
+      'Spingi in alto fino a estendere le braccia.',
+      'Torna controllato alle spalle.'
+    ],
+    svg:''
+  },
+  kickback: {
+    id:'kickback', name:'Kick Back 2 manubri', equip:'Manubri',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Gomiti fermi, estendi gli avambracci all’indietro.',
+    steps:[
+      'Piegato in avanti, gomiti a 90°.',
+      'Estendi le braccia all’indietro contraendo i tricipiti.',
+      'Torna lentamente.'
+    ],
+    svg:''
+  },
+  overhead_squat: {
+    id:'overhead_squat', name:'Overhead Squat 1 manubrio', equip:'Manubrio',
+    primary:['Quadricipiti','Spalle','Core'], secondary:['Glutei'],
+    unilateral:false,
+    cue:'Manubrio sopra la testa, scendi in squat.',
+    steps:[
+      'Manubrio tenuto con entrambe le mani sopra la testa.',
+      'Scendi in squat mantenendo le braccia tese e la schiena dritta.',
+      'Risali spingendo i talloni.'
+    ],
+    svg:''
+  },
+  bulgarian_squat: {
+    id:'bulgarian_squat', name:'Squat Bulgaro sedia', equip:'Corpo libero / Sedia',
+    primary:['Quadricipiti','Glutei'], secondary:['Femorali'],
+    unilateral:true,
+    cue:'Piede posteriore su sedia, scendi con la gamba anteriore.',
+    steps:[
+      'Piede posteriore appoggiato su una sedia.',
+      'Scendi piegando la gamba anteriore fino a 90°.',
+      'Spingi per tornare su e alterna le gambe.'
+    ],
+    svg:''
+  },
+  spider_climber: {
+    id:'spider_climber', name:'Spider Mountain Climber', equip:'Corpo libero',
+    primary:['Core','Obliqui'], secondary:['Spalle'],
+    unilateral:false,
+    cue:'Porta il ginocchio verso il gomito opposto in posizione plank.',
+    steps:[
+      'Posizione plank.',
+      'Porta il ginocchio destro verso il gomito sinistro e alterna.',
+      'Mantieni il bacino stabile.'
+    ],
+    svg:''
+  },
+  kb_swing: {
+    id:'kb_swing', name:'Swing Kettlebell', equip:'Kettlebell',
+    primary:['Glutei','Femorali','Core'], secondary:['Spalle'],
+    unilateral:false,
+    cue:'Spinta d’anca potente, kettlebell sale con l’inerzia.',
+    steps:[
+      'Kettlebell tra i piedi, schiena dritta.',
+      'Spingi i fianchi in avanti facendo salire il kettlebell.',
+      'Lascia scendere e ripeti con ritmo.'
+    ],
+    svg:''
+  },
+  kb_front_squat: {
+    id:'kb_front_squat', name:'Front Squat Kettlebell', equip:'Kettlebell',
+    primary:['Quadricipiti','Glutei'], secondary:['Core'],
+    unilateral:false,
+    cue:'Kettlebell al petto, scendi in squat profondo.',
+    steps:[
+      'Tieni il kettlebell con entrambe le mani al petto.',
+      'Scendi in squat mantenendo il busto eretto.',
+      'Risali spingendo i talloni.'
+    ],
+    svg:''
+  },
+  russian_twist: {
+    id:'russian_twist', name:'Russian Twist Kettlebell', equip:'Kettlebell',
+    primary:['Obliqui','Core'], secondary:[],
+    unilateral:false,
+    cue:'Ruota il busto portando il kettlebell da un lato all’altro.',
+    steps:[
+      'Seduto, ginocchia piegate, kettlebell tenuto con entrambe le mani.',
+      'Ruota il busto toccando il kettlebell a terra ai lati.',
+      'Mantieni i piedi sollevati se possibile.'
+    ],
+    svg:''
+  }
   trx_row: {
     id:'trx_row', name:'Rematore al TRX', equip:'TRX',
     primary:['Gran Dorsale','Trapezio medio'], secondary:['Bicipiti','Core'],
@@ -746,23 +999,28 @@ function renderMedia(ex){
 
 const DEFAULT_PLANS = {
   s1: {
-    id:'s1', short:'Sessione 1', name:'Riattivazione', mins:'25m',
-    ex:4, series:5, work:40, rest:20, roundRest:60, prep:10, mode:'circuit',
-    list:['push_up','air_squat','db_row_supported','plank']
+    id:'s1', short:'Seduta 1', name:'Full Body 1', mins:'~32m',
+    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
+    list:['push_up','db_row_supported','db_lateral_raise','french_press_behind','db_bicep_curl','db_deadlift','db_lunge_alt','double_crunch']
   },
   s2: {
-    id:'s2', short:'Sessione 2', name:'Volume 30m', mins:'30m',
-    ex:4, series:6, work:40, rest:20, roundRest:60, prep:10, mode:'circuit',
-    list:['pike_push_up','alt_lunges','db_bicep_curl','butterfly_sit_up']
+    id:'s2', short:'Seduta 2', name:'Full Body 2', mins:'~32m',
+    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
+    list:['goblet_squat','rdl_db','mountain_climber','wide_y_back','db_bench_press','prone_fly','french_press_behind','curl_wall']
   },
   s3: {
-    id:'s3', short:'Sessione 3', name:'Pre-35Boost', mins:'35m',
-    ex:4, series:7, work:40, rest:20, roundRest:60, prep:10, mode:'circuit',
-    list:['close_push_up','wall_sit','db_lateral_raise','reverse_crunch']
+    id:'s3', short:'Seduta 3', name:'Full Body 3', mins:'~32m',
+    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
+    list:['db_fly','neutral_row','seated_military','db_bicep_curl','kickback','overhead_squat','bulgarian_squat','spider_climber']
+  },
+  s4: {
+    id:'s4', short:'Seduta 4', name:'Kettlebell', mins:'~32m',
+    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
+    list:['kb_swing','kb_front_squat','db_lunge_alt','double_crunch','russian_twist','push_up','db_row_supported','seated_military']
   },
   custom: {
     id:'custom', short:'Libero', name:'Personalizzato', mins:'Custom',
-    ex:4, series:5, work:40, rest:20, roundRest:60, prep:10, mode:'circuit',
+    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
     list:['push_up','air_squat','db_row_supported','plank']
   }
 };
@@ -770,9 +1028,9 @@ const DEFAULT_PLANS = {
 const DEFAULTS = {
   planId:'s1',
   mode:'circuit',
-  ex:4,
-  series:5,
-  work:40, rest:20,
+  ex:8,
+  series:4,
+  work:20, rest:40,
   roundRest:60,
   prep:10,
   autoSerie:true,
