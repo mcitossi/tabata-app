@@ -1,4 +1,4 @@
-const CACHE = 'tabata-v5';
+const CACHE = 'tabata-v6';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.map(k => k !== CACHE && caches.delete(k)))).then(() => self.clients.claim()));

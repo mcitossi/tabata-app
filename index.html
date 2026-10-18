@@ -1172,8 +1172,10 @@ function renderPlanBox(){
   }
 
   const tabsEl = $('plan-tabs');
-  tabsEl.innerHTML = ['s1','s2','s3','custom'].map(id => {
+  const planOrder = ['w1s1','w1s2','w1s3','w2s1','w3s1','w3s2','w4s1','w5s1','w8s1','custom'];
+  tabsEl.innerHTML = planOrder.map(id => {
     const p = DEFAULT_PLANS[id];
+    if(!p) return '';
     const on = S.planId === id ? 'on' : '';
     const done = (id !== 'custom' && doneIds.has(id)) ? 'done' : '';
     return `<button type="button" class="plan-tab ${on} ${done}" data-plan="${id}">
