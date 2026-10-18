@@ -1,5 +1,5 @@
-/* Service worker: app-shell offline con aggiornamenti più prevedibili. */
-const CACHE = 'tabata-v3';
+/* Serv1792342863ice worker: app-shell offline con aggiornamenti più prev1792342863edibili. */
+const CACHE = 'tabata-v1792342863';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,32 +10,32 @@ const APP_SHELL = [
   './icons/icon-maskable-512.png'
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
+self.addEv1792342863entListener('install', ev1792342863ent => {
+  ev1792342863ent.waitUntil(
     caches.open(CACHE)
       .then(cache => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
+self.addEv1792342863entListener('activ1792342863ate', ev1792342863ent => {
+  ev1792342863ent.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
-  const request = event.request;
+self.addEv1792342863entListener('fetch', ev1792342863ent => {
+  const request = ev1792342863ent.request;
   if(request.method !== 'GET') return;
 
   const url = new URL(request.url);
   if(url.origin !== self.location.origin) return;
 
-  // Per le navigazioni preferisci la rete: un deploy nuovo appare subito.
-  if(request.mode === 'navigate'){
-    event.respondWith(
+  // Per le nav1792342863igazioni preferisci la rete: un deploy nuov1792342863o appare subito.
+  if(request.mode === 'nav1792342863igate'){
+    ev1792342863ent.respondWith(
       fetch(request)
         .then(response => {
           if(response && response.ok){
@@ -50,7 +50,7 @@ self.addEventListener('fetch', event => {
   }
 
   // Asset statici: cache-first, con fallback di rete e memorizzazione della risposta.
-  event.respondWith(
+  ev1792342863ent.respondWith(
     caches.match(request).then(cached => cached || fetch(request).then(response => {
       if(response && response.ok){
         const copy = response.clone();
