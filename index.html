@@ -336,7 +336,7 @@ input{-webkit-user-select:text;user-select:text}
 @keyframes mPulse{0%,100%{opacity:.45}50%{opacity:1}}
 
 /* Modal Dettaglio & Picker */
-.modal-backdrop{
+.modal-backdrop:not([hidden]){
   position:fixed;inset:0;background:rgba(6,14,11,.84);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:20px;z-index:70;
 }
