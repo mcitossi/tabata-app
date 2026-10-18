@@ -998,31 +998,16 @@ function renderMedia(ex){
 }
 
 const DEFAULT_PLANS = {
-  s1: {
-    id:'s1', short:'Seduta 1', name:'Full Body 1', mins:'~32m',
-    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
-    list:['push_up','db_row_supported','db_lateral_raise','french_press_behind','db_bicep_curl','db_deadlift','db_lunge_alt','double_crunch']
-  },
-  s2: {
-    id:'s2', short:'Seduta 2', name:'Full Body 2', mins:'~32m',
-    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
-    list:['goblet_squat','rdl_db','mountain_climber','wide_y_back','db_bench_press','prone_fly','french_press_behind','curl_wall']
-  },
-  s3: {
-    id:'s3', short:'Seduta 3', name:'Full Body 3', mins:'~32m',
-    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
-    list:['db_fly','neutral_row','seated_military','db_bicep_curl','kickback','overhead_squat','bulgarian_squat','spider_climber']
-  },
-  s4: {
-    id:'s4', short:'Seduta 4', name:'Kettlebell', mins:'~32m',
-    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
-    list:['kb_swing','kb_front_squat','db_lunge_alt','double_crunch','russian_twist','push_up','db_row_supported','seated_military']
-  },
-  custom: {
-    id:'custom', short:'Libero', name:'Personalizzato', mins:'Custom',
-    ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard',
-    list:['push_up','air_squat','db_row_supported','plank']
-  }
+  w1s1: { id:'w1s1', short:'W1 S1', name:'Workout 1 - Seduta 1', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['push_up','db_row_supported','db_lateral_raise','french_press_behind','db_bicep_curl','db_deadlift','db_lunge_alt','double_crunch'] },
+  w1s2: { id:'w1s2', short:'W1 S2', name:'Workout 1 - Seduta 2', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['goblet_squat','rdl_db','mountain_climber','wide_y_back','db_bench_press','prone_fly','french_press_behind','curl_wall'] },
+  w1s3: { id:'w1s3', short:'W1 S3', name:'Workout 1 - Seduta 3', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['db_fly','neutral_row','seated_military','db_bicep_curl','kickback','overhead_squat','bulgarian_squat','spider_climber'] },
+  w2s1: { id:'w2s1', short:'W2 S1', name:'Workout 2 - Circuito 25/15', mins:'25/15', ex:8, series:6, work:25, rest:15, roundRest:120, prep:10, mode:'circuit', list:['push_up','db_row_supported','goblet_squat','double_crunch','seated_military','db_bicep_curl','db_lunge_alt','plank'] },
+  w3s1: { id:'w3s1', short:'W3 S1', name:'Workout 3 - 30/30 Petto', mins:'30/30', ex:6, series:5, work:30, rest:30, roundRest:0, prep:10, mode:'standard', list:['push_up','db_fly','db_bench_press','db_bicep_curl','curl_wall','plank'] },
+  w3s2: { id:'w3s2', short:'W3 S2', name:'Workout 3 - 30/30 Gambe', mins:'30/30', ex:6, series:5, work:30, rest:30, roundRest:0, prep:10, mode:'standard', list:['goblet_squat','db_lunge_alt','rdl_db','air_squat','seated_military','db_lateral_raise'] },
+  w4s1: { id:'w4s1', short:'W4 S1', name:'Workout 4 - Jumpset 45/10', mins:'45/10', ex:10, series:3, work:45, rest:10, roundRest:60, prep:10, mode:'circuit', list:['push_up','db_row_supported','db_fly','wide_y_back','db_bench_press','prone_fly','close_push_up','neutral_row','plank','double_crunch'] },
+  w5s1: { id:'w5s1', short:'W5 S1', name:'Workout 5 - 60/20 Triset', mins:'60/20', ex:6, series:4, work:60, rest:20, roundRest:0, prep:10, mode:'circuit', list:['push_up','db_bicep_curl','double_crunch','db_bench_press','curl_wall','plank'] },
+  w8s1: { id:'w8s1', short:'W8 S1', name:'Workout 8 - 40/20 Petto', mins:'40/20', ex:6, series:5, work:40, rest:20, roundRest:60, prep:10, mode:'standard', list:['db_bench_press','db_fly','push_up','db_bicep_curl','curl_wall','double_crunch'] },
+  custom: { id:'custom', short:'Libero', name:'Personalizzato', mins:'Custom', ex:4, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['push_up','air_squat','db_row_supported','plank'] }
 };
 
 const DEFAULTS = {
