@@ -1,5 +1,5 @@
-/* Serv1792342863ice worker: app-shell offline con aggiornamenti più prev1792342863edibili. */
-const CACHE = 'tabata-v1792342863';
+/* Serv1792343063ice worker: app-shell offline con aggiornamenti più prev1792343063edibili. */
+const CACHE = 'tabata-v1792343063';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,32 +10,32 @@ const APP_SHELL = [
   './icons/icon-maskable-512.png'
 ];
 
-self.addEv1792342863entListener('install', ev1792342863ent => {
-  ev1792342863ent.waitUntil(
+self.addEv1792343063entListener('install', ev1792343063ent => {
+  ev1792343063ent.waitUntil(
     caches.open(CACHE)
       .then(cache => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
 });
 
-self.addEv1792342863entListener('activ1792342863ate', ev1792342863ent => {
-  ev1792342863ent.waitUntil(
+self.addEv1792343063entListener('activ1792343063ate', ev1792343063ent => {
+  ev1792343063ent.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEv1792342863entListener('fetch', ev1792342863ent => {
-  const request = ev1792342863ent.request;
+self.addEv1792343063entListener('fetch', ev1792343063ent => {
+  const request = ev1792343063ent.request;
   if(request.method !== 'GET') return;
 
   const url = new URL(request.url);
   if(url.origin !== self.location.origin) return;
 
-  // Per le nav1792342863igazioni preferisci la rete: un deploy nuov1792342863o appare subito.
-  if(request.mode === 'nav1792342863igate'){
-    ev1792342863ent.respondWith(
+  // Per le nav1792343063igazioni preferisci la rete: un deploy nuov1792343063o appare subito.
+  if(request.mode === 'nav1792343063igate'){
+    ev1792343063ent.respondWith(
       fetch(request)
         .then(response => {
           if(response && response.ok){
@@ -50,7 +50,7 @@ self.addEv1792342863entListener('fetch', ev1792342863ent => {
   }
 
   // Asset statici: cache-first, con fallback di rete e memorizzazione della risposta.
-  ev1792342863ent.respondWith(
+  ev1792343063ent.respondWith(
     caches.match(request).then(cached => cached || fetch(request).then(response => {
       if(response && response.ok){
         const copy = response.clone();
