@@ -399,10 +399,11 @@ input{-webkit-user-select:text;user-select:text}
 
     <div class="plan-box">
       <div class="plan-top">
-        <span class="plan-lbl">PROGRAMMA SETTIMANALE (PHA)</span>
+        <span class="plan-lbl">MESOCICLO E SETTIMANA</span>
         <span class="rec-badge" id="rec-badge">Pronto per iniziare</span>
       </div>
-      <div class="plan-tabs" id="plan-tabs"></div>
+      <div class="plan-tabs" id="meso-tabs"></div>
+      <div class="plan-tabs" id="week-tabs" style="margin-top:8px"></div>
       <div class="ex-list" id="ex-list"></div>
     </div>
 
@@ -990,6 +991,310 @@ const CATALOG = {
       'Torna lentamente in estensione senza perdere la linea delle spalle.'
     ],
     svg:`<svg class="anim-svg" viewBox="0 0 120 120" fill="none" stroke="#d7e9a4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="14" x2="54" y2="52" stroke="#476044" stroke-dasharray="3 3"/><g class="frame-a"><circle cx="76" cy="46" r="7"/><path d="M72 54 L36 96 M72 54 L54 52" stroke-width="4"/></g><g class="frame-b"><circle cx="60" cy="36" r="7"/><circle class="muscle-glow" cx="62" cy="48" r="8"/><path d="M56 44 L36 96 M56 44 L66 56 L54 52" stroke-width="4"/></g></svg>`
+  },
+  db_front_raise: {
+    id:'db_front_raise', name:'Alzata frontale manubri', equip:'Manubri',
+    primary:['Deltoide ant.'], secondary:['Trapezio'],
+    unilateral:false,
+    cue:'Alza i manubri fino all’altezza delle spalle, controlla la discesa.',
+    steps:['Manubri davanti alle cosce, palmi verso le cosce.','Alza fino all’altezza delle spalle senza dondolare.','Scendi lentamente.'],
+    svg:''
+  },
+  side_plank: {
+    id:'side_plank', name:'Side Plank', equip:'Corpo libero',
+    primary:['Obliqui','Core'], secondary:['Deltoide','Glutei'],
+    unilateral:true,
+    cue:'Corpo in linea, non abbassare i fianchi.',
+    steps:['Appoggio su avambraccio e lato del piede.','Mantieni la linea da testa a piedi.','Cambia lato a metà tempo.'],
+    svg:''
+  },
+  speed_walkout: {
+    id:'speed_walkout', name:'Speed Walkout', equip:'Corpo libero',
+    primary:['Core','Spalle'], secondary:['Flessori anche'],
+    unilateral:false,
+    cue:'Cammina con le mani in avanti e torna velocemente.',
+    steps:['Parti in piedi, piegati e appoggia le mani a terra.','Cammina con le mani fino alla posizione di plank.','Torna indietro e rialzati.'],
+    svg:''
+  },
+  kb_deadlift: {
+    id:'kb_deadlift', name:'Stacco da terra Kettlebell', equip:'Kettlebell',
+    primary:['Femorali','Glutei'], secondary:['Lombari','Core'],
+    unilateral:false,
+    cue:'Kettlebell tra i piedi, spingi i talloni e alza.',
+    steps:['Piedi larghezza anche, kettlebell a terra.','Scendi con schiena neutra e afferra il kettlebell.','Risali spingendo i talloni.'],
+    svg:''
+  },
+  kb_row: {
+    id:'kb_row', name:'Rematore Kettlebell', equip:'Kettlebell',
+    primary:['Gran Dorsale','Trapezio'], secondary:['Bicipiti'],
+    unilateral:true,
+    cue:'Tira il kettlebell verso il fianco, gomito vicino al corpo.',
+    steps:['Appoggio su panca o in posizione di stacco.','Tira il kettlebell verso l’anca.','Controlla la discesa.'],
+    svg:''
+  },
+  kb_curl: {
+    id:'kb_curl', name:'Curl Kettlebell', equip:'Kettlebell',
+    primary:['Bicipiti'], secondary:['Avambracci'],
+    unilateral:false,
+    cue:'Curl controllato, non dondolare il busto.',
+    steps:['Kettlebell in mano, braccio disteso.','Fletti il gomito portando il kettlebell verso la spalla.','Scendi lentamente.'],
+    svg:''
+  },
+  kb_jerk: {
+    id:'kb_jerk', name:'Jerk Kettlebell', equip:'Kettlebell',
+    primary:['Spalle','Tricipiti'], secondary:['Gambe','Core'],
+    unilateral:false,
+    cue:'Spinta esplosiva sopra la testa con aiuto delle gambe.',
+    steps:['Kettlebell al petto.','Piega leggermente le ginocchia e spingi.','Blocca il kettlebell sopra la testa.'],
+    svg:''
+  },
+  kb_lunge: {
+    id:'kb_lunge', name:'Affondi Kettlebell', equip:'Kettlebell',
+    primary:['Quadricipiti','Glutei'], secondary:['Core'],
+    unilateral:true,
+    cue:'Passo lungo, ginocchio posteriore vicino al suolo.',
+    steps:['Kettlebell al petto o di lato.','Fai un passo avanti e scendi in affondo.','Torna e cambia gamba.'],
+    svg:''
+  },
+  kb_lunge_lateral: {
+    id:'kb_lunge_lateral', name:'Affondi laterali Kettlebell', equip:'Kettlebell',
+    primary:['Quadricipiti','Adduttori'], secondary:['Glutei'],
+    unilateral:true,
+    cue:'Passo laterale ampio, ginocchio allineato al piede.',
+    steps:['Kettlebell al petto.','Fai un passo laterale e scendi.','Torna al centro e cambia lato.'],
+    svg:''
+  },
+  kb_military: {
+    id:'kb_military', name:'Military Press Kettlebell', equip:'Kettlebell',
+    primary:['Deltoidi','Tricipiti'], secondary:['Core'],
+    unilateral:false,
+    cue:'Spingi il kettlebell sopra la testa senza inarcare la schiena.',
+    steps:['Kettlebell al petto o in rack.','Spingi verticalmente fino a braccio disteso.','Scendi controllando.'],
+    svg:''
+  },
+  kb_crunch: {
+    id:'kb_crunch', name:'Crunch Kettlebell', equip:'Kettlebell',
+    primary:['Retto addominale'], secondary:['Obliqui'],
+    unilateral:false,
+    cue:'Crunch con kettlebell sul petto, solleva le spalle da terra.',
+    steps:['Sdraiato, kettlebell al petto.','Solleva spalle e testa da terra.','Scendi lentamente.'],
+    svg:''
+  },
+  reverse_back_angel: {
+    id:'reverse_back_angel', name:'Reverse Back Angel', equip:'Corpo libero',
+    primary:['Trapezio','Romboide'], secondary:[],
+    unilateral:false,
+    cue:'Braccia aperte a Y/W, solleva il petto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  hollow_body: {
+    id:'hollow_body', name:'Hollow Body Position', equip:'Corpo libero',
+    primary:['Core'], secondary:[],
+    unilateral:false,
+    cue:'Schiena a terra, gambe e braccia sollevate.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  crunch_weight: {
+    id:'crunch_weight', name:'Crunch con peso', equip:'Manubri',
+    primary:['Retto addominale'], secondary:[],
+    unilateral:false,
+    cue:'Crunch tenendo un manubrio al petto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  jump_lunge: {
+    id:'jump_lunge', name:'Affondi Jump', equip:'Corpo libero',
+    primary:['Quadricipiti','Glutei'], secondary:[],
+    unilateral:false,
+    cue:'Affondo esplosivo con cambio di gamba.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  full_lateral_raise: {
+    id:'full_lateral_raise', name:'Alzate laterali complete', equip:'Manubri',
+    primary:['Deltoidi'], secondary:[],
+    unilateral:false,
+    cue:'Alzate laterali con ampiezza completa.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  side_bend_kb: {
+    id:'side_bend_kb', name:'Side Bend Kettlebell', equip:'Kettlebell',
+    primary:['Obliqui'], secondary:[],
+    unilateral:false,
+    cue:'Inclinazione laterale con kettlebell.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  full_squat_jump: {
+    id:'full_squat_jump', name:'Full Squat Jump', equip:'Corpo libero',
+    primary:['Quadricipiti','Glutei'], secondary:[],
+    unilateral:false,
+    cue:'Squat completo seguito da salto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_row: {
+    id:'band_row', name:'Rematore Elastico', equip:'Elastici',
+    primary:['Gran Dorsale'], secondary:[],
+    unilateral:false,
+    cue:'Tira l’elastico verso il petto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_front_raise: {
+    id:'band_front_raise', name:'Alzata frontale Elastico', equip:'Elastici',
+    primary:['Deltoide ant.'], secondary:[],
+    unilateral:false,
+    cue:'Alza l’elastico fino alle spalle.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_rdl: {
+    id:'band_rdl', name:'Stacco rumeno Elastico', equip:'Elastici',
+    primary:['Femorali','Glutei'], secondary:[],
+    unilateral:false,
+    cue:'Stacco rumeno con elastico sotto i piedi.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_fly: {
+    id:'band_fly', name:'Croci Elastico', equip:'Elastici',
+    primary:['Pettorali'], secondary:[],
+    unilateral:false,
+    cue:'Apertura orizzontale con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_french: {
+    id:'band_french', name:'French Press Elastico', equip:'Elastici',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Estensione sopra la testa con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  cross_mountain: {
+    id:'cross_mountain', name:'Cross Mountain Climber', equip:'Corpo libero',
+    primary:['Core','Obliqui'], secondary:[],
+    unilateral:false,
+    cue:'Mountain climber portando il ginocchio verso il gomito opposto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_squat: {
+    id:'band_squat', name:'Front Squat Elastico', equip:'Elastici',
+    primary:['Quadricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Squat con elastico sulle spalle.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_push_up: {
+    id:'band_push_up', name:'Piegamenti Elastico', equip:'Elastici',
+    primary:['Pettorali'], secondary:[],
+    unilateral:false,
+    cue:'Piegamenti con elastico sulla schiena.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_military: {
+    id:'band_military', name:'Military Press Elastico', equip:'Elastici',
+    primary:['Deltoidi'], secondary:[],
+    unilateral:false,
+    cue:'Spinta verticale con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_curl: {
+    id:'band_curl', name:'Curl Elastico', equip:'Elastici',
+    primary:['Bicipiti'], secondary:[],
+    unilateral:false,
+    cue:'Curl con elastico sotto i piedi.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_crunch: {
+    id:'band_crunch', name:'Crunch braccia alte Elastico', equip:'Elastici',
+    primary:['Retto addominale'], secondary:[],
+    unilateral:false,
+    cue:'Crunch tenendo l’elastico teso sopra la testa.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  kb_thruster: {
+    id:'kb_thruster', name:'Goblet Thruster Kettlebell', equip:'Kettlebell',
+    primary:['Quadricipiti','Spalle'], secondary:[],
+    unilateral:false,
+    cue:'Squat + spinta sopra la testa.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  tate_press: {
+    id:'tate_press', name:'Tate Press', equip:'Manubri',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Estensione tricipiti con manubri sopra il petto.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  dip_chair: {
+    id:'dip_chair', name:'Dip su sedia', equip:'Corpo libero',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Dip usando una sedia o panca.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  lazy_curl: {
+    id:'lazy_curl', name:'Curl uomo pigro', equip:'Manubri',
+    primary:['Bicipiti'], secondary:[],
+    unilateral:false,
+    cue:'Curl con braccia appoggiate dietro.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  reverse_curl: {
+    id:'reverse_curl', name:'Curl presa inversa', equip:'Manubri',
+    primary:['Bicipiti','Avambracci'], secondary:[],
+    unilateral:false,
+    cue:'Curl con palmi verso il basso.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_pulley: {
+    id:'band_pulley', name:'Pulley Elastico', equip:'Elastici',
+    primary:['Gran Dorsale'], secondary:[],
+    unilateral:false,
+    cue:'Tirata verticale con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_kickback: {
+    id:'band_kickback', name:'Kick Back Elastico', equip:'Elastici',
+    primary:['Tricipiti'], secondary:[],
+    unilateral:false,
+    cue:'Estensione del braccio con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  band_russian: {
+    id:'band_russian', name:'Russian Twist Elastico', equip:'Elastici',
+    primary:['Obliqui'], secondary:[],
+    unilateral:false,
+    cue:'Rotazione del busto con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
+  },
+  wide_y_back_band: {
+    id:'wide_y_back_band', name:'Wide Y Back Elastico', equip:'Elastici',
+    primary:['Trapezio','Deltoidi'], secondary:[],
+    unilateral:false,
+    cue:'Apertura a Y con elastico.',
+    steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
+    svg:''
   }
 };
 
@@ -997,16 +1302,46 @@ function renderMedia(ex){
   return (ex && ex.svg) ? ex.svg : '';
 }
 
+const MESOCYCLES = {
+  m1: { id:'m1', name:'Mesociclo 1', timing:'20"/40"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:8, series:4, work:20, rest:40, list:['push_up','db_row_supported','db_lateral_raise','french_press_behind','db_bicep_curl','db_deadlift','db_lunge_alt','double_crunch'] },
+    w2: { id:'w2', name:'Settimana 2', ex:8, series:4, work:20, rest:40, list:['goblet_squat','rdl_db','mountain_climber','wide_y_back','db_bench_press','prone_fly','french_press_behind','curl_wall'] },
+    w3: { id:'w3', name:'Settimana 3', ex:8, series:4, work:20, rest:40, list:['db_fly','neutral_row','seated_military','db_bicep_curl','kickback','overhead_squat','bulgarian_squat','spider_climber'] },
+    w4: { id:'w4', name:'Settimana 4', ex:8, series:4, work:20, rest:40, list:['kb_swing','kb_front_squat','db_lunge_alt','double_crunch','russian_twist','push_up','db_row_supported','seated_military'] }
+  }},
+  m2: { id:'m2', name:'Mesociclo 2', timing:'25"/15"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:8, series:6, work:25, rest:15, roundRest:120, list:['push_up','db_row_supported','goblet_squat','double_crunch','seated_military','db_bicep_curl','db_lunge_alt','plank'] },
+    w2: { id:'w2', name:'Settimana 2', ex:8, series:6, work:25, rest:15, roundRest:120, list:['db_bench_press','prone_fly','mountain_climber','air_squat','close_push_up','db_bicep_curl','db_lateral_raise','double_crunch'] },
+    w3: { id:'w3', name:'Settimana 3', ex:8, series:6, work:25, rest:15, roundRest:120, list:['db_deadlift','speed_walkout','plank','double_crunch','db_lunge_alt','db_lateral_raise','kickback','side_plank'] },
+    w4: { id:'w4', name:'Settimana 4', ex:8, series:6, work:25, rest:15, roundRest:120, list:['kb_swing','kb_front_squat','kb_deadlift','russian_twist','push_up','db_row_supported','french_press_behind','plank'] }
+  }},
+  m3: { id:'m3', name:'Mesociclo 3', timing:'30"/30"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:6, series:5, work:30, rest:30, list:['push_up','db_fly','db_bench_press','db_bicep_curl','curl_wall','plank'] },
+    w2: { id:'w2', name:'Settimana 2', ex:6, series:5, work:30, rest:30, list:['goblet_squat','db_lunge_alt','rdl_db','air_squat','seated_military','db_lateral_raise'] },
+    w3: { id:'w3', name:'Settimana 3', ex:6, series:5, work:30, rest:30, list:['db_row_supported','prone_fly','wide_y_back','french_press_behind','close_push_up','plank'] },
+    w4: { id:'w4', name:'Settimana 4', ex:6, series:5, work:30, rest:30, list:['kb_front_squat','kb_lunge_lateral','kb_row','kb_jerk','double_crunch','kb_crunch'] }
+  }},
+  m4: { id:'m4', name:'Mesociclo 4', timing:'45"/10"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:10, series:3, work:45, rest:10, roundRest:60, list:['push_up','db_row_supported','db_fly','wide_y_back','db_bench_press','prone_fly','close_push_up','neutral_row','plank','double_crunch'] },
+    w2: { id:'w2', name:'Settimana 2', ex:10, series:3, work:45, rest:10, roundRest:60, list:['goblet_squat','seated_military','rdl_db','db_lateral_raise','db_lunge_alt','db_front_raise','db_deadlift','prone_fly','plank','double_crunch'] },
+    w3: { id:'w3', name:'Settimana 3', ex:10, series:3, work:45, rest:10, roundRest:60, list:['db_bicep_curl','close_push_up','curl_wall','kickback','curl_wall','french_press_behind','db_bicep_curl','french_press_behind','plank','double_crunch'] },
+    w4: { id:'w4', name:'Settimana 4', ex:10, series:3, work:45, rest:10, roundRest:60, list:['kb_swing','kb_front_squat','kb_lunge','kb_row','push_up','kb_curl','french_press_behind','russian_twist','double_crunch','plank'] }
+  }},
+  m5: { id:'m5', name:'Mesociclo 5', timing:'60"/20"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:6, series:4, work:60, rest:20, list:['push_up','db_bicep_curl','double_crunch','db_bench_press','curl_wall','plank'] },
+    w2: { id:'w2', name:'Settimana 2', ex:6, series:4, work:60, rest:20, list:['goblet_squat','seated_military','db_lunge_alt','db_lateral_raise','db_deadlift','prone_fly'] },
+    w3: { id:'w3', name:'Settimana 3', ex:6, series:4, work:60, rest:20, list:['db_row_supported','french_press_behind','side_plank','wide_y_back','close_push_up','plank'] },
+    w4: { id:'w4', name:'Settimana 4', ex:6, series:4, work:60, rest:20, list:['kb_front_squat','kb_swing','kb_row','push_up','kb_curl','kb_crunch'] }
+  }},
+  m8: { id:'m8', name:'Mesociclo 8', timing:'40"/20"', weeks:{
+    w1: { id:'w1', name:'Settimana 1', ex:6, series:5, work:40, rest:20, roundRest:60, list:['db_bench_press','db_fly','push_up','db_bicep_curl','curl_wall','double_crunch'] },
+    w2: { id:'w2', name:'Settimana 2', ex:6, series:5, work:40, rest:20, roundRest:60, list:['goblet_squat','db_lunge_alt','seated_military','db_lateral_raise','rdl_db','prone_fly'] },
+    w3: { id:'w3', name:'Settimana 3', ex:6, series:5, work:40, rest:20, roundRest:60, list:['db_row_supported','wide_y_back','french_press_behind','close_push_up','double_crunch','plank'] },
+    w4: { id:'w4', name:'Settimana 4', ex:6, series:5, work:40, rest:20, roundRest:60, list:['kb_front_squat','kb_swing','kb_row','push_up','kb_military','double_crunch'] }
+  }}
+};
+
 const DEFAULT_PLANS = {
-  w1s1: { id:'w1s1', short:'W1 S1', name:'Workout 1 - Seduta 1', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['push_up','db_row_supported','db_lateral_raise','french_press_behind','db_bicep_curl','db_deadlift','db_lunge_alt','double_crunch'] },
-  w1s2: { id:'w1s2', short:'W1 S2', name:'Workout 1 - Seduta 2', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['goblet_squat','rdl_db','mountain_climber','wide_y_back','db_bench_press','prone_fly','french_press_behind','curl_wall'] },
-  w1s3: { id:'w1s3', short:'W1 S3', name:'Workout 1 - Seduta 3', mins:'20/40', ex:8, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['db_fly','neutral_row','seated_military','db_bicep_curl','kickback','overhead_squat','bulgarian_squat','spider_climber'] },
-  w2s1: { id:'w2s1', short:'W2 S1', name:'Workout 2 - Circuito 25/15', mins:'25/15', ex:8, series:6, work:25, rest:15, roundRest:120, prep:10, mode:'circuit', list:['push_up','db_row_supported','goblet_squat','double_crunch','seated_military','db_bicep_curl','db_lunge_alt','plank'] },
-  w3s1: { id:'w3s1', short:'W3 S1', name:'Workout 3 - 30/30 Petto', mins:'30/30', ex:6, series:5, work:30, rest:30, roundRest:0, prep:10, mode:'standard', list:['push_up','db_fly','db_bench_press','db_bicep_curl','curl_wall','plank'] },
-  w3s2: { id:'w3s2', short:'W3 S2', name:'Workout 3 - 30/30 Gambe', mins:'30/30', ex:6, series:5, work:30, rest:30, roundRest:0, prep:10, mode:'standard', list:['goblet_squat','db_lunge_alt','rdl_db','air_squat','seated_military','db_lateral_raise'] },
-  w4s1: { id:'w4s1', short:'W4 S1', name:'Workout 4 - Jumpset 45/10', mins:'45/10', ex:10, series:3, work:45, rest:10, roundRest:60, prep:10, mode:'circuit', list:['push_up','db_row_supported','db_fly','wide_y_back','db_bench_press','prone_fly','close_push_up','neutral_row','plank','double_crunch'] },
-  w5s1: { id:'w5s1', short:'W5 S1', name:'Workout 5 - 60/20 Triset', mins:'60/20', ex:6, series:4, work:60, rest:20, roundRest:0, prep:10, mode:'circuit', list:['push_up','db_bicep_curl','double_crunch','db_bench_press','curl_wall','plank'] },
-  w8s1: { id:'w8s1', short:'W8 S1', name:'Workout 8 - 40/20 Petto', mins:'40/20', ex:6, series:5, work:40, rest:20, roundRest:60, prep:10, mode:'standard', list:['db_bench_press','db_fly','push_up','db_bicep_curl','curl_wall','double_crunch'] },
   custom: { id:'custom', short:'Libero', name:'Personalizzato', mins:'Custom', ex:4, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['push_up','air_squat','db_row_supported','plank'] }
 };
 
@@ -1143,6 +1478,34 @@ function totalSeconds(){
 }
 function isFav(){ return !!fav && FAV_KEYS.every(k => fav[k] === S[k]); }
 
+
+function selectMeso(mesoId){
+  S.mesoId = mesoId;
+  S.weekId = 'w1';
+  applyWeek();
+  save();
+  renderSettings();
+}
+function selectWeek(weekId){
+  S.weekId = weekId;
+  applyWeek();
+  save();
+  renderSettings();
+}
+function applyWeek(){
+  const m = MESOCYCLES[S.mesoId];
+  if(!m) return;
+  const w = m.weeks[S.weekId];
+  if(!w) return;
+  S.ex = w.ex;
+  S.series = w.series;
+  S.work = w.work;
+  S.rest = w.rest;
+  S.roundRest = w.roundRest || 0;
+  S.exList = w.list.slice();
+  S.planId = S.mesoId + S.weekId;
+}
+
 function selectPlan(planId){
   const p = DEFAULT_PLANS[planId];
   if(!p) return;
@@ -1171,23 +1534,42 @@ function renderPlanBox(){
     badge.textContent = 'Pronto per iniziare';
   }
 
-  const tabsEl = $('plan-tabs');
-  const planOrder = ['w1s1','w1s2','w1s3','w2s1','w3s1','w3s2','w4s1','w5s1','w8s1','custom'];
-  tabsEl.innerHTML = planOrder.map(id => {
-    const p = DEFAULT_PLANS[id];
-    if(!p) return '';
-    const on = S.planId === id ? 'on' : '';
-    const done = (id !== 'custom' && doneIds.has(id)) ? 'done' : '';
-    return `<button type="button" class="plan-tab ${on} ${done}" data-plan="${id}">
-      <span class="pt-sub">${p.short}</span>
-      <span class="pt-title">${p.name}</span>
-      <span class="pt-meta">${p.mins}</span>
+  const mesoEl = $('meso-tabs');
+  const weekEl = $('week-tabs');
+  const mesoOrder = ['m1','m2','m3','m4','m5','m8'];
+  
+  mesoEl.innerHTML = mesoOrder.map(id => {
+    const m = MESOCYCLES[id];
+    const on = S.mesoId === id ? 'on' : '';
+    return `<button type="button" class="plan-tab ${on}" data-meso="${id}">
+      <span class="pt-sub">${m.timing}</span>
+      <span class="pt-title">${m.name}</span>
     </button>`;
   }).join('');
 
-  tabsEl.querySelectorAll('.plan-tab').forEach(btn => {
-    btn.addEventListener('click', () => selectPlan(btn.dataset.plan));
+  mesoEl.querySelectorAll('[data-meso]').forEach(btn => {
+    btn.addEventListener('click', () => selectMeso(btn.dataset.meso));
   });
+
+  function renderWeeks(){
+    const m = MESOCYCLES[S.mesoId];
+    if(!m){ weekEl.innerHTML = ''; return; }
+    const weekOrder = ['w1','w2','w3','w4'];
+    weekEl.innerHTML = weekOrder.map(id => {
+      const w = m.weeks[id];
+      if(!w) return '';
+      const on = S.weekId === id ? 'on' : '';
+      return `<button type="button" class="plan-tab ${on}" data-week="${id}">
+        <span class="pt-sub">${w.ex} es.</span>
+        <span class="pt-title">${w.name}</span>
+        <span class="pt-meta">${w.work}"/${w.rest}"</span>
+      </button>`;
+    }).join('');
+    weekEl.querySelectorAll('[data-week]').forEach(btn => {
+      btn.addEventListener('click', () => selectWeek(btn.dataset.week));
+    });
+  }
+  renderWeeks();
 
   if(!Array.isArray(S.exList)) S.exList = DEFAULTS.exList.slice();
   const keys = Object.keys(CATALOG);
