@@ -378,6 +378,26 @@ input{-webkit-user-select:text;user-select:text}
   .seg{margin-left:auto}.row-sub{font-size:10px}.fields-in::before{font-size:24px}
   .plan-tabs{grid-template-columns:repeat(2,1fr)}
 }
+
+.program-info{font-size:12px;line-height:1.5;color:var(--muted)}
+.session-tabs{display:grid;gap:7px}
+.session-tab{text-align:left;padding:12px;border:1px solid var(--line);border-radius:14px;display:grid;gap:4px;background:var(--bg)}
+.session-tab b{font-size:13px}.session-tab span{font-size:11px;color:var(--muted)}
+.session-tab.on{border-color:var(--accent);background:#233e2e}
+#week-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}#week-tabs button{font-size:12px;padding:12px 2px}
+button:disabled{cursor:default;opacity:.45}input:disabled{opacity:1;-webkit-text-fill-color:var(--fg)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.no-demo{font-size:9px;line-height:1.3;color:var(--muted);text-align:center;display:inline-block}
+.demo-box .no-demo{font-size:15px}.live-anim-wrap .no-demo{font-size:11px}
+.emom-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px}
+.emom-ex{display:grid;justify-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.emom-ex svg{width:42px;height:42px}.emom-ex b{font-size:10px;line-height:1.2}.emom-ex small{font-size:10px;color:var(--accent)}
+#btn-emom-done{min-height:40px;height:auto;padding:8px 12px;font-size:11px}
+#screen-run:has(#emom-pair:not([hidden])) .ring{opacity:.25}
+#screen-run:has(#emom-pair:not([hidden])) .ex-live-name{font-size:15px}
+@media(max-height:650px){.live-anim-wrap{width:48px;height:48px}.live-anim-wrap svg{width:44px;height:44px}.center{gap:4px}.time,.time.big{font-size:48px}.emom-ex>span{display:none}.hint{font-size:10px}.ex-live-name{font-size:15px}.next-pill{font-size:10px}.run-top{height:48px}.run-ctrl button{height:46px}}
+@media(orientation:landscape) and (max-height:500px){.ring{width:200px}.center{gap:2px}.live-anim-wrap{display:none}.hint{max-width:90%}.next-pill{display:none}.emom-pair{max-width:500px}.emom-ex{padding:3px}.time,.time.big{font-size:38px}.run-top{height:40px}.run-ctrl{padding-top:4px}.run-ctrl button{height:40px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.anim-svg .frame-b{display:none}}
 </style>
 </head>
 <body>
@@ -399,11 +419,14 @@ input{-webkit-user-select:text;user-select:text}
 
     <div class="plan-box">
       <div class="plan-top">
-        <span class="plan-lbl">MESOCICLO E SETTIMANA</span>
+        <span class="plan-lbl">IL TUO PROGRAMMA</span>
         <span class="rec-badge" id="rec-badge">Pronto per iniziare</span>
       </div>
       <div class="plan-tabs" id="meso-tabs"></div>
       <div class="plan-tabs" id="week-tabs" style="margin-top:8px"></div>
+      <p class="program-info" id="program-info"></p>
+      <div class="session-tabs" id="session-tabs"></div>
+      <button type="button" class="ghost" id="btn-customize">Crea una sessione libera</button>
       <div class="ex-list" id="ex-list"></div>
     </div>
 
@@ -528,7 +551,7 @@ input{-webkit-user-select:text;user-select:text}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
     <div class="counters">
-      ESERCIZIO <b id="cur-ex">1</b>/<b id="tot-ex">4</b><span class="sep">·</span>ROUND <b id="cur-serie">1</b>/<b id="tot-serie">5</b>
+      ESERCIZIO <b id="cur-ex">1</b>/<b id="tot-ex">4</b><span class="sep">·</span><span id="counter-unit">SERIE</span> <b id="cur-serie">1</b>/<b id="tot-serie">5</b>
     </div>
     <button type="button" class="icon-btn" id="btn-run-info" aria-label="Dettagli esercizio">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -544,8 +567,10 @@ input{-webkit-user-select:text;user-select:text}
       <span class="phase-label" id="phase-label">LAVORO</span>
       <div class="live-anim-wrap" id="live-anim"></div>
       <span class="ex-live-name" id="ex-live-name">Flessioni a terra</span>
+      <div id="emom-pair" class="emom-pair" hidden></div>
       <span class="time" id="time">00:40</span>
       <span class="hint" id="hint"></span>
+      <button type="button" id="btn-emom-done" class="ghost" hidden>Ripetizioni finite · recupera</button>
       <span class="next-pill" id="next-pill" hidden></span>
     </div>
 
@@ -578,11 +603,12 @@ input{-webkit-user-select:text;user-select:text}
   <div class="modal-card" id="ex-modal-content"></div>
 </div>
 
+<script src="workout-data.js"></script>
 <script>
 (() => {
 'use strict';
 
-const CATALOG = {
+const LEGACY_CATALOG = {
   push_up: {
     id:'push_up', name:'Flessioni a terra', equip:'Corpo libero',
     primary:['Pettorali','Tricipiti'], secondary:['Deltoide ant.','Core'],
@@ -818,7 +844,7 @@ const CATALOG = {
     unilateral:false,
     cue:'Spingi i manubri verso l’alto partendo dal petto.',
     steps:[
-      'Sdraiato o in piedi, manubri all’altezza del petto.',
+      'Sdraiato, manubri ai lati del petto.',
       'Spingi in alto fino a estendere quasi completamente le braccia.',
       'Torna controllato al petto.'
     ],
@@ -936,10 +962,10 @@ const CATALOG = {
     id:'spider_climber', name:'Spider Mountain Climber', equip:'Corpo libero',
     primary:['Core','Obliqui'], secondary:['Spalle'],
     unilateral:false,
-    cue:'Porta il ginocchio verso il gomito opposto in posizione plank.',
+    cue:'Porta il ginocchio lateralmente verso il gomito dello stesso lato.',
     steps:[
       'Posizione plank.',
-      'Porta il ginocchio destro verso il gomito sinistro e alterna.',
+      'Porta il ginocchio destro verso il gomito destro e alterna.',
       'Mantieni il bacino stabile.'
     ],
     svg:''
@@ -1268,7 +1294,7 @@ const CATALOG = {
     id:'band_pulley', name:'Pulley Elastico', equip:'Elastici',
     primary:['Gran Dorsale'], secondary:[],
     unilateral:false,
-    cue:'Tirata verticale con elastico.',
+    cue:'Remata orizzontale con elastico.',
     steps:['Esegui il movimento in modo controllato.','Mantieni la tensione per tutto il tempo.','Respira regolarmente.'],
     svg:''
   },
@@ -1298,65 +1324,49 @@ const CATALOG = {
   }
 };
 
+const CATALOG = {...LEGACY_CATALOG};
+for(const ex of Object.values(WorkoutLibrary.exercises)){
+  const media = ex.mediaId && LEGACY_CATALOG[ex.mediaId];
+  CATALOG[ex.id] = {...ex, primary:[], secondary:[], unilateral:false,
+    svg:media ? media.svg : '',
+    cue:'Esegui la variante indicata nella scheda.',
+    steps:['Per la tecnica esatta e le varianti consulta la lezione originale di questo workout.']};
+}
+const MESOCYCLES = WorkoutLibrary.mesocycles;
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 function renderMedia(ex){
-  return (ex && ex.svg) ? ex.svg : '';
+  return ex && ex.svg ? ex.svg : '<span class="no-demo" role="img" aria-label="Demo non disponibile">Demo<br>non disponibile</span>';
+}
+function activeProgram(){
+  const m = MESOCYCLES[S.mesoId];
+  const session = m && m.sessions.find(x => x.id === S.sessionId);
+  return S.programVersion === 1 && S.planId !== 'custom' && session ? {m,session} : null;
+}
+function displayExercise(index){
+  const ex = getExObj(index), program = activeProgram();
+  const entry = program && program.session.exercises[index-1];
+  return entry && entry.id === ex.id ? entry.label : ex.name;
+}
+function programLabel(){
+  const p = activeProgram();
+  return p ? `${p.m.name} · Settimana ${S.week} · Seduta ${S.sessionId.slice(1)}` : 'Personalizzato';
 }
 
-const MESOCYCLES = {
-  m1: { id:'m1', name:'Mesociclo 1', timing:'20"/40"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:12, series:4, work:20, rest:40, list:['db_bench_press','db_fly','push_up','db_bicep_curl','curl_wall','double_crunch','hollow_body','close_push_up','plank','reverse_crunch','butterfly_sit_up','crunch_weight'] },
-    w2: { id:'w2', name:'Settimana 2', ex:12, series:4, work:20, rest:40, list:['goblet_squat','db_lunge_alt','seated_military','db_lateral_raise','rdl_db','prone_fly','overhead_squat','bulgarian_squat','air_squat','jump_lunge','db_front_raise','wall_sit'] },
-    w3: { id:'w3', name:'Settimana 3', ex:12, series:4, work:20, rest:40, list:['db_row_supported','wide_y_back','french_press_behind','close_push_up','double_crunch','plank','neutral_row','kickback','side_plank','tate_press','dip_chair','reverse_back_angel'] },
-    w4: { id:'w4', name:'Settimana 4', ex:12, series:4, work:20, rest:40, list:['kb_front_squat','kb_swing','kb_row','push_up','kb_military','double_crunch','kb_thruster','russian_twist','kb_curl','plank','kb_jerk','kb_deadlift'] }
-  }},
-  m2: { id:'m2', name:'Mesociclo 2', timing:'25"/15"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:8, series:6, work:25, rest:15, roundRest:120, list:['push_up','db_row_supported','goblet_squat','double_crunch','seated_military','db_bicep_curl','db_lunge_alt','plank'] },
-    w2: { id:'w2', name:'Settimana 2', ex:8, series:6, work:25, rest:15, roundRest:120, list:['db_bench_press','prone_fly','mountain_climber','air_squat','close_push_up','db_bicep_curl','db_lateral_raise','double_crunch'] },
-    w3: { id:'w3', name:'Settimana 3', ex:8, series:6, work:25, rest:15, roundRest:120, list:['db_deadlift','speed_walkout','plank','double_crunch','db_lunge_alt','db_lateral_raise','kickback','side_plank'] },
-    w4: { id:'w4', name:'Settimana 4', ex:8, series:6, work:25, rest:15, roundRest:120, list:['kb_swing','kb_front_squat','kb_deadlift','russian_twist','push_up','db_row_supported','french_press_behind','plank'] }
-  }},
-  m3: { id:'m3', name:'Mesociclo 3', timing:'30"/30"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:6, series:5, work:30, rest:30, list:['push_up','db_fly','db_bench_press','db_bicep_curl','curl_wall','plank'] },
-    w2: { id:'w2', name:'Settimana 2', ex:6, series:5, work:30, rest:30, list:['goblet_squat','db_lunge_alt','rdl_db','air_squat','seated_military','db_lateral_raise'] },
-    w3: { id:'w3', name:'Settimana 3', ex:6, series:5, work:30, rest:30, list:['db_row_supported','prone_fly','wide_y_back','french_press_behind','close_push_up','plank'] },
-    w4: { id:'w4', name:'Settimana 4', ex:6, series:5, work:30, rest:30, list:['kb_front_squat','kb_lunge_lateral','kb_row','kb_jerk','double_crunch','kb_crunch'] }
-  }},
-  m4: { id:'m4', name:'Mesociclo 4', timing:'45"/10"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:10, series:3, work:45, rest:10, roundRest:60, list:['push_up','db_row_supported','db_fly','wide_y_back','db_bench_press','prone_fly','close_push_up','neutral_row','plank','double_crunch'] },
-    w2: { id:'w2', name:'Settimana 2', ex:10, series:3, work:45, rest:10, roundRest:60, list:['goblet_squat','seated_military','rdl_db','db_lateral_raise','db_lunge_alt','db_front_raise','db_deadlift','prone_fly','plank','double_crunch'] },
-    w3: { id:'w3', name:'Settimana 3', ex:10, series:3, work:45, rest:10, roundRest:60, list:['db_bicep_curl','close_push_up','curl_wall','kickback','curl_wall','french_press_behind','db_bicep_curl','french_press_behind','plank','double_crunch'] },
-    w4: { id:'w4', name:'Settimana 4', ex:10, series:3, work:45, rest:10, roundRest:60, list:['kb_swing','kb_front_squat','kb_lunge','kb_row','push_up','kb_curl','french_press_behind','russian_twist','double_crunch','plank'] }
-  }},
-  m5: { id:'m5', name:'Mesociclo 5', timing:'60"/20"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:6, series:4, work:60, rest:20, list:['push_up','db_bicep_curl','double_crunch','db_bench_press','curl_wall','plank'] },
-    w2: { id:'w2', name:'Settimana 2', ex:6, series:4, work:60, rest:20, list:['goblet_squat','seated_military','db_lunge_alt','db_lateral_raise','db_deadlift','prone_fly'] },
-    w3: { id:'w3', name:'Settimana 3', ex:6, series:4, work:60, rest:20, list:['db_row_supported','french_press_behind','side_plank','wide_y_back','close_push_up','plank'] },
-    w4: { id:'w4', name:'Settimana 4', ex:6, series:4, work:60, rest:20, list:['kb_front_squat','kb_swing','kb_row','push_up','kb_curl','kb_crunch'] }
-  }},
-  m8: { id:'m8', name:'Mesociclo 8', timing:'40"/20"', weeks:{
-    w1: { id:'w1', name:'Settimana 1', ex:6, series:5, work:40, rest:20, roundRest:60, list:['db_bench_press','db_fly','push_up','db_bicep_curl','curl_wall','double_crunch'] },
-    w2: { id:'w2', name:'Settimana 2', ex:6, series:5, work:40, rest:20, roundRest:60, list:['goblet_squat','db_lunge_alt','seated_military','db_lateral_raise','rdl_db','prone_fly'] },
-    w3: { id:'w3', name:'Settimana 3', ex:6, series:5, work:40, rest:20, roundRest:60, list:['db_row_supported','wide_y_back','french_press_behind','close_push_up','double_crunch','plank'] },
-    w4: { id:'w4', name:'Settimana 4', ex:6, series:5, work:40, rest:20, roundRest:60, list:['kb_front_squat','kb_swing','kb_row','push_up','kb_military','double_crunch'] }
-  }}
-};
-
-const DEFAULT_PLANS = {
-  custom: { id:'custom', short:'Libero', name:'Personalizzato', mins:'Custom', ex:4, series:4, work:20, rest:40, roundRest:0, prep:10, mode:'standard', list:['push_up','air_squat','db_row_supported','plank'] }
-};
-
 const DEFAULTS = {
-  planId:'s1',
-  mode:'circuit',
+  schemaVersion:3, programVersion:1, mesoId:'m1', sessionId:'s1', week:1,
+  planId:'m1:s1',
+  mode:'standard',
   ex:8,
   series:4,
   work:20, rest:40,
-  roundRest:60,
+  roundRest:40,
   prep:10,
   autoSerie:true,
   trans:10,
   autoEx:true,
-  exList:['push_up','air_squat','db_row_supported','plank']
+  exList:MESOCYCLES.m1.sessions[0].exercises.map(e => e.id)
 };
 const LIMITS = {
   ex:       {min:1, max:30,   stepFn:()=>1},
@@ -1371,23 +1381,28 @@ const FAV_KEYS = ['ex','series','work','rest','roundRest','prep','autoSerie','tr
 const KEY = 'tabata.settings.v2', FAV = 'tabata.favorite.v2', HIST = 'tabata.history', VIVA_KEY = 'viva.workouts';
 
 function normalizeSettings(raw, fallback = DEFAULTS){
-  const base = Object.assign({}, DEFAULTS, fallback || {});
-  base.exList = Array.isArray(base.exList) ? base.exList.slice() : DEFAULTS.exList.slice();
+  const base = {...DEFAULTS,...(fallback || {}),exList:DEFAULTS.exList.slice()};
   if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return base;
-  const v = Object.assign({}, raw);
-  ['ex','series','work','rest','roundRest','prep','trans'].forEach(key => {
-    const n = Number(v[key]);
-    if(Number.isFinite(n) && LIMITS[key]){
-      const L = LIMITS[key];
-      base[key] = Math.max(L.min, Math.min(L.max, Math.round(n)));
-    }
-  });
-  ['autoSerie','autoEx'].forEach(key => {
-    if(typeof v[key] === 'boolean') base[key] = v[key];
-  });
-  if(v.mode === 'circuit' || v.mode === 'standard') base.mode = v.mode;
-  if(typeof v.planId === 'string' && DEFAULT_PLANS[v.planId]) base.planId = v.planId;
-  if(Array.isArray(v.exList) && v.exList.length) base.exList = v.exList.slice();
+  for(const key of Object.keys(LIMITS)){
+    const n=Number(raw[key]), L=LIMITS[key];
+    if(Number.isFinite(n)) base[key]=Math.max(L.min,Math.min(L.max,Math.round(n)));
+  }
+  for(const key of ['autoSerie','autoEx']) if(typeof raw[key]==='boolean') base[key]=raw[key];
+  if(['circuit','standard'].includes(raw.mode)) base.mode=raw.mode;
+  base.week=Math.max(1,Math.min(4,Math.round(Number(raw.week)||1)));
+  const m=MESOCYCLES[raw.mesoId];
+  const session=m && m.sessions.find(x=>x.id===raw.sessionId);
+  if(raw.schemaVersion===3 && raw.programVersion===1 && raw.planId!=='custom' && session){
+    Object.assign(base,{programVersion:1,mesoId:m.id,sessionId:session.id,planId:`${m.id}:${session.id}`,
+      ex:session.exercises.length,series:m.rounds,work:m.work,rest:m.rest,roundRest:m.blockRest,mode:m.mode});
+    base.exList=session.exercises.map((e,i)=>Array.isArray(raw.exList)&&CATALOG[raw.exList[i]]?raw.exList[i]:e.id);
+  }else{
+    // I vecchi preset erano incompleti: conserviamo i dati come sessione libera.
+    Object.assign(base,{programVersion:0,mesoId:null,sessionId:null,planId:'custom'});
+    base.exList=Array.isArray(raw.exList)?raw.exList.filter(id=>typeof id==='string'&&CATALOG[id]).slice(0,30):[];
+    if(!base.exList.length) base.exList=['push_up','air_squat','db_row_supported','plank'];
+  }
+  base.schemaVersion=3;
   return base;
 }
 function load(k, fb){
@@ -1466,111 +1481,57 @@ document.addEventListener('visibilitychange', () => {
 
 const inEx = $('in-ex'), inSeries = $('in-series'), inWork = $('in-work'), inRest = $('in-rest');
 
-function totalSeconds(){
-  if(S.mode === 'circuit'){
-    const perRound = S.ex * S.work + Math.max(0, S.ex - 1) * S.rest;
-    const roundGaps = Math.max(0, S.series - 1) * S.roundRest;
-    return S.prep + S.series * perRound + roundGaps;
-  }
-  const gaps = Math.max(0, S.series - 1);
-  const perEx = S.prep + S.series * S.work + gaps * S.rest + (S.autoSerie ? gaps * S.trans : 0);
-  return S.ex * perEx;
+function totalSeconds(){ return buildSeq().reduce((sum,p)=>sum+(p.dur||0),0); }
+function isFav(){
+  return !!fav && FAV_KEYS.every(k=>fav[k]===S[k]) &&
+    ['planId','mesoId','sessionId','week'].every(k=>fav[k]===S[k]) && JSON.stringify(fav.exList)===JSON.stringify(S.exList);
 }
-function isFav(){ return !!fav && FAV_KEYS.every(k => fav[k] === S[k]); }
-
-
-function selectMeso(mesoId){
-  S.mesoId = mesoId;
-  S.weekId = 'w1';
-  applyWeek();
-  save();
+function applyProgram(mesoId,sessionId='s1'){
+  const m=MESOCYCLES[mesoId], session=m && m.sessions.find(x=>x.id===sessionId);
+  if(!session) return;
+  Object.assign(S,{schemaVersion:3,programVersion:1,mesoId,sessionId,planId:`${mesoId}:${sessionId}`,
+    ex:session.exercises.length,series:m.rounds,work:m.work,rest:m.rest,roundRest:m.blockRest,
+    mode:m.mode,exList:session.exercises.map(e=>e.id)});
   renderSettings();
 }
-function selectWeek(weekId){
-  S.weekId = weekId;
-  applyWeek();
-  save();
-  renderSettings();
-}
-function applyWeek(){
-  const m = MESOCYCLES[S.mesoId];
-  if(!m) return;
-  const w = m.weeks[S.weekId];
-  if(!w) return;
-  S.ex = w.ex;
-  S.series = w.series;
-  S.work = w.work;
-  S.rest = w.rest;
-  S.roundRest = w.roundRest || 0;
-  S.exList = w.list.slice();
-  S.planId = S.mesoId + S.weekId;
-}
-
-function selectPlan(planId){
-  const p = DEFAULT_PLANS[planId];
-  if(!p) return;
-  S.planId = planId;
-  if(planId !== 'custom'){
-    S.ex = p.ex; S.series = p.series; S.work = p.work; S.rest = p.rest;
-    S.roundRest = p.roundRest; S.prep = p.prep; S.mode = p.mode;
-    S.exList = p.list.slice();
-  }
-  buzz(10);
-  renderSettings();
+function selectMeso(id){S.week=1;applyProgram(id);}
+function selectWeek(week){S.week=Number(week);renderSettings();}
+function customize(){
+  S.planId='custom';S.programVersion=0;S.mesoId=null;S.sessionId=null;
+  if(!['standard','circuit'].includes(S.mode)) S.mode='circuit';
+  renderSettings();toast('Sessione libera: scegli tempi e struttura');
 }
 
 function renderPlanBox(){
-  const hist = loadHistory();
-  const doneIds = new Set(hist.map(h => h && h.planId));
-  const last = hist[hist.length - 1];
-
-  const badge = $('rec-badge');
-  if(last && last.ts){
-    const hrs = Math.round((Date.now() - last.ts) / 36e5);
-    if(hrs < 24) badge.textContent = `Recupero: ${hrs}h fa (Riposo attivo)`;
-    else if(hrs < 48) badge.textContent = `Recupero: ${hrs}h fa (Quasi pronto)`;
-    else badge.textContent = `Supercompensazione OK (${hrs}h)`;
-  } else {
-    badge.textContent = 'Pronto per iniziare';
-  }
-
-  const mesoEl = $('meso-tabs');
-  const weekEl = $('week-tabs');
-  const mesoOrder = ['m1','m2','m3','m4','m5','m8'];
-  
-  mesoEl.innerHTML = mesoOrder.map(id => {
-    const m = MESOCYCLES[id];
-    const on = S.mesoId === id ? 'on' : '';
-    return `<button type="button" class="plan-tab ${on}" data-meso="${id}">
-      <span class="pt-sub">${m.timing}</span>
-      <span class="pt-title">${m.name}</span>
-    </button>`;
-  }).join('');
-
-  mesoEl.querySelectorAll('[data-meso]').forEach(btn => {
-    btn.addEventListener('click', () => selectMeso(btn.dataset.meso));
-  });
-
-  function renderWeeks(){
-    const m = MESOCYCLES[S.mesoId];
-    if(!m){ weekEl.innerHTML = ''; return; }
-    const weekOrder = ['w1','w2','w3','w4'];
-    weekEl.innerHTML = weekOrder.map(id => {
-      const w = m.weeks[id];
-      if(!w) return '';
-      const on = S.weekId === id ? 'on' : '';
-      return `<button type="button" class="plan-tab ${on}" data-week="${id}">
-        <span class="pt-sub">${w.ex} es.</span>
-        <span class="pt-title">${w.name}</span>
-        <span class="pt-meta">${w.work}"/${w.rest}"</span>
-      </button>`;
-    }).join('');
-    weekEl.querySelectorAll('[data-week]').forEach(btn => {
-      btn.addEventListener('click', () => selectWeek(btn.dataset.week));
-    });
-  }
-  renderWeeks();
-
+  const p=activeProgram();
+  const hist=loadHistory();
+  const completed=p && hist.some(h=>h && h.programVersion===1 && h.mesoId===S.mesoId && h.sessionId===S.sessionId && h.week===S.week);
+  const changed=p && p.session.exercises.some((e,i)=>e.id!==S.exList[i]);
+  $('rec-badge').textContent=changed?'Varianti personali':completed?'Seduta già completata':p?'Scheda originale':'Sessione libera';
+  $('meso-tabs').innerHTML=Object.values(MESOCYCLES).map(m=>`<button type="button" class="plan-tab ${p&&m.id===S.mesoId?'on':''}" data-meso="${m.id}" aria-pressed="${!!p&&m.id===S.mesoId}"><span class="pt-sub">${m.mode==='emom'?'EMOM':m.work+'″ / '+m.rest+'″'}</span><span class="pt-title">${m.name}</span></button>`).join('');
+  $('meso-tabs').querySelectorAll('[data-meso]').forEach(b=>b.onclick=()=>selectMeso(b.dataset.meso));
+  $('week-tabs').hidden=!p;
+  $('week-tabs').innerHTML=p?[1,2,3,4].map(w=>`<button type="button" class="plan-tab ${S.week===w?'on':''}" data-week="${w}" aria-pressed="${S.week===w}">Sett. ${w}</button>`).join(''):'';
+  $('week-tabs').querySelectorAll('[data-week]').forEach(b=>b.onclick=()=>selectWeek(b.dataset.week));
+  $('session-tabs').hidden=!p;
+  $('session-tabs').innerHTML=p?p.m.sessions.map(session=>`<button type="button" class="session-tab ${session.id===S.sessionId?'on':''}" data-session="${session.id}" aria-pressed="${session.id===S.sessionId}"><b>Seduta ${session.id.slice(1)}${session.optional?' · facoltativa':''}</b><span>${escapeHtml(session.name)}</span></button>`).join(''):'';
+  $('session-tabs').querySelectorAll('[data-session]').forEach(b=>b.onclick=()=>applyProgram(S.mesoId,b.dataset.session));
+  const structure=p?(p.m.mode==='emom'?'3 coppie · 10 minuti per coppia · 1 minuto tra i blocchi.':p.m.mode==='standard'?`${p.m.rounds} serie per esercizio · ${p.m.blockRest} s tra esercizi.`:`${p.session.exercises.length/p.m.blockSize} blocchi da ${p.m.blockSize} esercizi · ${p.m.rounds} giri per blocco.${p.m.blockRest?' '+p.m.blockRest+' s tra blocchi.':''}`):'';
+  $('program-info').textContent=p?`${p.m.method}. ${structure} Le sedute si ripetono nelle settimane. Riscaldamento e stretching fuori timer.`:'Imposta liberamente esercizi, tempi e modalità. Le vecchie impostazioni sono conservate come sessione libera.';
+  $('btn-customize').hidden=!p;
+  $('emom-pair').hidden=true;
+  // Le impostazioni originali si modificano soltanto passando alla sessione libera.
+  for(const input of [inEx,inSeries,inWork,inRest]) input.disabled=!!p;
+  document.querySelectorAll('.step').forEach(b=>b.disabled=!!p&&b.dataset.key!=='prep');
+  $('seg-mode').closest('.row').hidden=!!p;
+  $('row-round-rest').hidden=!!p || S.mode!=='circuit';
+  $('row-auto-serie').hidden=!!p || S.mode==='circuit';
+  $('row-trans').hidden=!!p || S.mode==='circuit';
+  $('row-auto-ex').hidden=!!p || S.mode==='circuit';
+  $('lbl-series').textContent=p?(p.m.mode==='emom'?'Minuti per coppia':p.m.mode==='standard'?'Serie per esercizio':'Giri per blocco'):S.mode==='circuit'?'Giri':'Serie per esercizio';
+  $('lbl-work').textContent=p&&p.m.mode==='emom'?'Intervallo EMOM':'Lavoro';
+  $('in-rest').closest('.field').hidden=!!p&&p.m.mode==='emom';
+  $('btn-customize').onclick=customize;
   if(!Array.isArray(S.exList)) S.exList = DEFAULTS.exList.slice();
   const keys = Object.keys(CATALOG);
   while(S.exList.length < S.ex){
@@ -1581,16 +1542,18 @@ function renderPlanBox(){
   let html = '';
   for(let i = 1; i <= S.ex; i++){
     const ex = getExObj(i);
+    const program=activeProgram();
+    const block=program && program.m.mode!=='standard' ? `Blocco ${Math.floor((i-1)/program.m.blockSize)+1} · ` : '';
     html += `<div class="ex-row">
       <div class="ex-main" data-info="${ex.id}">
         <div class="ex-thumb">${renderMedia(ex)}</div>
         <div class="ex-info">
-          <span class="ex-name">${i}. ${ex.name}${ex.unilateral ? ' ⇄' : ''}</span>
-          <span class="ex-musc">${ex.primary.join(' · ')} (${ex.equip})</span>
+          <span class="ex-name">${i}. ${escapeHtml(displayExercise(i))}</span>
+          <span class="ex-musc">${block}${escapeHtml(ex.equip)}${ex.svg?'':' · Demo assente'}</span>
         </div>
       </div>
       <div class="ex-actions">
-        <button type="button" class="ex-btn" data-info="${ex.id}">Demo</button>
+        <button type="button" class="ex-btn" data-info="${ex.id}">${ex.svg ? 'Demo' : 'Dettagli'}</button>
         <button type="button" class="ex-btn" data-swap="${i-1}">Cambia</button>
       </div>
     </div>`;
@@ -1619,7 +1582,7 @@ function openExDetailModal(exId){
     </div>
     <div class="demo-box">
       ${renderMedia(ex)}
-      <span class="demo-badge">Animazione A ↔ B · Muscoli attivi in rosso</span>
+      <span class="demo-badge">${ex.svg ? 'Illustrazione schematica' : 'Nessuna demo associata a questa variante'}</span>
     </div>
     <div class="tag-row">
       ${ex.primary.map(p => `<span class="tag pri">🎯 ${p}</span>`).join('')}
@@ -1662,7 +1625,7 @@ function openExPickerModal(slotIndex){
   c.querySelectorAll('[data-pick]').forEach(btn => {
     btn.addEventListener('click', () => {
       S.exList[slotIndex] = btn.dataset.pick;
-      S.planId = 'custom';
+      if(!activeProgram()) S.planId = 'custom';
       m.hidden = true;
       renderSettings();
       toast('Esercizio aggiornato');
@@ -1715,7 +1678,7 @@ function segSet(id, val){
   });
 }
 function setVal(key, v){
-  const L = LIMITS[key]; if(!L) return;
+  const L = LIMITS[key]; if(!L || (activeProgram() && key!=='prep')) return;
   S[key] = clamp(Math.round(v), L.min, L.max);
   renderSettings();
 }
@@ -1794,10 +1757,10 @@ $('seg-mode').addEventListener('click', e => { const b = e.target.closest('butto
 });
 $('seg-ex').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.autoEx = b.dataset.val === 'auto'; buzz(10); renderSettings(); });$('btn-fav').addEventListener('click', () => {
   if(isFav()){ fav = null; localStorage.removeItem(FAV); toast('Preferito rimosso'); }
-  else { fav = Object.assign({}, S); localStorage.setItem(FAV, JSON.stringify(fav)); toast('Preset salvato'); }
+  else { fav = {...S,exList:S.exList.slice()}; localStorage.setItem(FAV, JSON.stringify(fav)); toast('Preset salvato'); }
   renderSettings();
 });
-$('preset').addEventListener('click', () => { if(!fav) return; S = Object.assign({}, S, fav); renderSettings(); toast('Preset caricato'); });$('btn-back').addEventListener('click', () => {
+$('preset').addEventListener('click', () => { if(!fav) return; S = normalizeSettings(fav); renderSettings(); toast('Preset caricato'); });$('btn-back').addEventListener('click', () => {
   if(!document.referrer) return toast('Sei già nella schermata iniziale');
   try{
     const prev = new URL(document.referrer);
@@ -1821,6 +1784,7 @@ let seq = [], idx = -1, endAt = 0, left = 0, running = false, paused = false, ra
 let watchdog = 0;
 
 function buildSeq(){
+  if(activeProgram()) return WorkoutLibrary.buildProgram(S.mesoId,S.sessionId,S.prep,S.exList);
   const out = [];
   if(S.mode === 'circuit'){
     if(S.prep > 0) out.push({ t:'prep', dur:S.prep, ex:1, serie:1 });
@@ -1857,6 +1821,8 @@ const PH = {
   work:      { label:'LAVORO',          color:'#00F5A0' },
   rest:      { label:'RIPOSO',          color:'#FFB020' },
   roundRest: { label:'PAUSA FINE GIRO', color:'#4DA3FF' },
+  blockRest: { label:'RECUPERO', color:'#4DA3FF' },
+  emom: { label:'EMOM', color:'#00F5A0' },
   trans:     { label:'TRANSIZIONE',     color:'#4DA3FF' }
 };
 
@@ -1901,52 +1867,51 @@ function goPhase(i, base){
   paused = false;
   applyPhase(p);
   if(performance.now() - base < 1500){
-    p.t === 'work' ? sfxWork() : sfxRest();
+    (p.t === 'work' || p.t === 'emom') ? sfxWork() : sfxRest();
   }
   render();
   ensureLoop();
 }
 function applyPhase(p){
-  const exObj = getExObj(p.ex);
-  RUN.style.setProperty('--phase', PH[p.t].color);
-  $('phase-label').textContent = PH[p.t].label;
-  $('time').classList.toggle('big', p.t === 'work');
-
-  const nameEl = $('ex-live-name');
-  const nextEl = $('next-pill');
-  const animEl = $('live-anim');
-
-  if(p.t === 'work'){
-    nameEl.textContent = exObj.name;
-    animEl.innerHTML = renderMedia(exObj);
-    $('hint').textContent = exObj.cue;
-    const nextIdx = p.ex < S.ex ? p.ex + 1 : 1;
-    const nextExObj = getExObj(nextIdx);
-    nextEl.hidden = false;
-    nextEl.textContent = (S.mode === 'circuit' && p.ex === S.ex)
-      ? (p.serie < S.series ? 'Poi: Pausa fine Round (60s)' : 'Ultimo esercizio!')
-      : `Poi: ${nextExObj.name}`;
-  } else if(p.t === 'prep'){
-    nameEl.textContent = exObj.name;
-    animEl.innerHTML = renderMedia(exObj);
-    $('hint').textContent = `Preparati · ${exObj.equip}`;
-    nextEl.hidden = true;
-  } else if(p.t === 'rest' || p.t === 'roundRest'){
-    const nextExObj = getExObj(p.nextEx || p.ex);
-    nameEl.textContent = `Prossimo: ${nextExObj.name}`;
-    animEl.innerHTML = renderMedia(nextExObj);
-    $('hint').textContent = p.t === 'roundRest'
-      ? `Fine Round ${p.serie - 1}! Recupera e bevi un sorso d'acqua.`
-      : nextExObj.cue;
-    nextEl.hidden = false;
-    nextEl.textContent = `🛠️ ${nextExObj.equip}`;
-  } else {
-    nameEl.textContent = exObj.name;
-    animEl.innerHTML = renderMedia(exObj);
-    $('hint').textContent = `Prossima serie: ${p.serie} di ${S.series}`;
-    nextEl.hidden = true;
+  const exObj=getExObj(p.ex), program=activeProgram();
+  RUN.style.setProperty('--phase',PH[p.t].color);
+  $('phase-label').textContent=PH[p.t].label;
+  $('time').classList.toggle('big',p.t==='work');
+  $('emom-pair').hidden=p.t!=='emom';
+  $('btn-emom-done').hidden=p.t!=='emom';
+  $('live-anim').hidden=p.t==='emom';
+  $('next-pill').hidden=true;
+  $('cur-serie').textContent=String(p.serie);
+  $('counter-unit').textContent=p.t==='emom'?'MINUTO':program&&program.m.mode==='standard'?'SERIE':'GIRO';
+  if(p.t==='emom'){
+    $('ex-live-name').textContent=`Coppia ${p.block} · minuto ${p.serie}/10`;
+    $('emom-pair').innerHTML=p.pair.map(i=>{
+      const e=program.session.exercises[i-1],ex=getExObj(i);
+      return `<button type="button" class="emom-ex" data-info="${ex.id}"><span>${renderMedia(ex)}</span><b>${escapeHtml(displayExercise(i))}</b><small>${e.reps==='8 per lato'?'8 ripetizioni per lato':'8 ripetizioni'}</small></button>`;
+    }).join('');
+    $('emom-pair').querySelectorAll('[data-info]').forEach(b=>b.onclick=()=>openExDetailModal(b.dataset.info));
+    $('hint').textContent='Esegui entrambi gli esercizi, poi recupera fino al nuovo minuto.';
+    $('btn-emom-done').textContent='Ripetizioni finite · recupera';
+    $('btn-emom-done').disabled=false;
+  }else{
+    const upcoming=['rest','roundRest','blockRest'].includes(p.t);
+    const i=upcoming?(p.nextEx||p.ex):p.ex, ex=getExObj(i);
+    $('ex-live-name').textContent=(upcoming?'Prossimo: ':'')+displayExercise(i);
+    $('live-anim').innerHTML=renderMedia(ex);
+    $('hint').textContent=upcoming?'Recupera':p.t==='prep'?`Preparati · ${ex.equip}`:ex.cue;
+    const next=seq.slice(idx+1).find(x=>x.t==='work'||x.t==='emom');
+    if(p.t==='work'){
+      $('next-pill').hidden=false;
+      $('next-pill').textContent=next?(next.ex===p.ex?'Poi: prossima serie':`Poi: ${displayExercise(next.ex)}`):'Ultimo esercizio';
+    }
   }
 }
+$('btn-emom-done').addEventListener('click',()=>{
+  if(!running || paused || !seq[idx] || seq[idx].t!=='emom') return;
+  $('phase-label').textContent='RECUPERO EMOM';
+  $('hint').textContent='Recupera: la prossima serie parte allo scoccare del minuto.';
+  $('btn-emom-done').textContent='In recupero';$('btn-emom-done').disabled=true;
+});
 function loop(){ raf = 0; step(); ensureLoop(); }
 function ensureLoop(){ if(running && !paused && !raf) raf = requestAnimationFrame(loop); }
 function step(){
@@ -1964,7 +1929,7 @@ function step(){
   if(p && p.t === 'work'){
     const exObj = getExObj(p.ex);
     const halfSec = Math.floor(p.dur / 2);
-    if(exObj.unilateral && sec === halfSec && !halfBeepDone){
+    if(!activeProgram() && exObj.unilateral && sec === halfSec && !halfBeepDone){
       halfBeepDone = true;
       sfxHalf();
       $('hint').textContent = '🔄 CAMBIA BRACCIO / LATO ORA!';
@@ -1995,10 +1960,12 @@ function finish(){
       ts: Date.now(),
       date: new Date().toISOString().slice(0,10),
       planId: S.planId,
-      planName: (DEFAULT_PLANS[S.planId] && DEFAULT_PLANS[S.planId].name) || 'Custom',
+      planName: programLabel(),
+      programVersion:activeProgram()?1:0,mesoId:S.mesoId,sessionId:S.sessionId,week:S.week,
       durationSec: totalSeconds(),
+      exerciseIds:S.exList.slice(0,S.ex),
       rounds: S.series,
-      exercises: S.exList.slice(0, S.ex).map(id => CATALOG[id] ? CATALOG[id].name : id)
+      exercises: S.exList.slice(0, S.ex).map((id,i) => displayExercise(i+1))
     };
     const hist = loadHistory();
     hist.push(entry);
@@ -2007,9 +1974,6 @@ function finish(){
     vivaLogs.push(entry);
     localStorage.setItem(VIVA_KEY, JSON.stringify(vivaLogs.slice(-100)));
 
-    if(S.planId === 's1') S.planId = 's2';
-    else if(S.planId === 's2') S.planId = 's3';
-    else if(S.planId === 's3') S.planId = 's1';
     save();
   }catch(_){}
 }
@@ -2043,7 +2007,7 @@ $('btn-again').addEventListener('click', startWorkout);$('btn-home').addEventLis
 $('btn-close').addEventListener('click', stopWorkout);$('btn-run-info').addEventListener('click', () => {
   const p = seq[idx];
   if(!p) return;
-  const exObj = getExObj(p.t === 'rest' || p.t === 'roundRest' ? (p.nextEx || p.ex) : p.ex);
+  const exObj = getExObj(p.t === 'rest' || p.t === 'roundRest' || p.t === 'blockRest' ? (p.nextEx || p.ex) : p.ex);
   openExDetailModal(exObj.id);
 });
 

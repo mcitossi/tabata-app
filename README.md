@@ -79,3 +79,65 @@ Esempio: 3 esercizi × 5 serie da 30/30, preparazione 10 s e transizione 10 s �
   riallinea). Per questo il Wake Lock tiene lo schermo acceso.
 - Il service worker usa network-first per le navigazioni e cache-first per gli asset statici:
   i deploy nuovi vengono recepiti più rapidamente mantenendo il funzionamento offline.
+
+## Schede 35WORKOUT (aggiornamento ottobre 2026)
+
+Il programma contiene gli 8 mesocicli e le 40 sedute trascritte dai PDF forniti
+all'interno del progetto. Ogni mesociclo offre tre sedute principali e due
+facoltative (kettlebell ed elastici). La settimana è un indicatore di avanzamento:
+selezionare una settimana diversa **non cambia gli esercizi della seduta**.
+La selezione delle settimane 1–4 è manuale; non ci sono progressioni automatiche
+nei carichi né cambi automatici di mesociclo.
+
+- M1: 8 esercizi, 4 serie, 20/40; 40 s fra esercizi.
+- M2: due blocchi da 4 esercizi, 6 giri ciascuno, 25/15; 120 s fra blocchi.
+- M3: 6 esercizi, 5 serie, 30/30; 30 s fra esercizi.
+- M4: cinque coppie, 3 giri per coppia, 45/10; 60 s fra coppie.
+- M5: un circuito di 6 esercizi, 4 giri, 60/20.
+- M6: quattro terne, 4 giri per terna, 30/10; 60 s fra terne.
+- M7: tre coppie EMOM, 10 minuti per coppia; 60 s fra coppie. Le due
+  prescrizioni di ripetizioni sono visibili insieme. «Ripetizioni finite» segnala
+  il recupero senza saltare il tempo rimasto. Non viene imposto un tempo fittizio
+  di 30 secondi per ciascun esercizio. Le indicazioni «per lato» sono conservate.
+- M8: 6 esercizi, 5 serie, 40/20; 60 s fra esercizi.
+
+La pausa lunga sostituisce il recupero breve alla fine dell'ultimo giro del
+blocco; non è aggiunta due volte. Il timer termina con l'ultimo lavoro: non conta
+un recupero finale. Il countdown iniziale è configurabile, mentre riscaldamento
+e stretching restano fuori dal timer. Per una scheda originale i parametri sono
+bloccati; «Crea una sessione libera» abilita le modifiche. «Cambia» può sostituire
+un esercizio mantenendo la struttura: il programma è allora indicato come
+«Varianti personali». Le scelte destra/sinistra esplicite dei PDF sono slot distinti,
+senza un ulteriore segnale automatico di cambio lato a metà intervallo.
+
+### Dati e animazioni
+
+`workout-data.js` contiene le sedute, 128 voci/varianti normalizzate e il generatore
+delle sequenze. I nomi originali dei PDF restano nelle sedute; gli alias uniscono
+solo differenze testuali certe. Non si sostituiscono esercizi diversi per ottenere
+un'animazione: per esempio curl hammer e curl classico, plank e hollow body,
+rematore con due manubri e rematore unilaterale in appoggio rimangono distinti.
+
+La versione precedente conteneva soltanto alcune illustrazioni SVG incorporate,
+nessun file di animazione in `anims/` e nessun collegamento funzionante ai media
+openGym. Le illustrazioni esistenti sono riutilizzate soltanto per sei voci
+corrispondenti del programma. Le altre voci mostrano **Demo non disponibile** e
+un pulsante **Dettagli**. Non è stata aggiunta alcuna dipendenza remota.
+
+Le impostazioni esistenti restano nella stessa chiave `tabata.settings.v2` e
+sono migrate allo schema 3. I vecchi preset incompleti vengono conservati come
+sessioni libere; cronologia e preferiti non sono cancellati. Le nuove selezioni
+memorizzano separatamente mesociclo, settimana, seduta e varianti personali.
+Il service worker v14 precarica anche `workout-data.js` per l'uso offline.
+
+### Verifica
+
+```sh
+node --test tests/*.test.cjs
+```
+
+I controlli coprono le 40 sedute, le durate e i recuperi, l'ordine di coppie e
+terne, l'EMOM, le varianti, la migrazione delle impostazioni, i preferiti, la
+cronologia e la cache offline. Per un controllo manuale avviare il server locale,
+selezionare mesociclo/settimana/seduta, ricaricare la pagina e verificare la
+persistenza. Nel mesociclo 7 provare pausa/ripresa e «Ripetizioni finite».
